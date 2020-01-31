@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Indice.Kentico.Oidc</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>Indice.Kentico.Oidc</title>
     <authors>c.leftheris, g.manoltzas</authors>
     <owners>Indice</owners>
@@ -11,7 +11,7 @@
     <projectUrl>https://github.com/indice-co/Indice.Kentico</projectUrl>
     <!-- <icon>icon-310.png</icon> -->
     <description>ASP.NET Authentication Module for Kentico and OpenID Connect</description>
-    <releaseNotes>Downgrade IdentityModel.</releaseNotes>
+    <releaseNotes>Change target framework.</releaseNotes>
     <copyright>Copyright 2020</copyright>
     <tags>kentico aspnet oidc;</tags>
   </metadata>
