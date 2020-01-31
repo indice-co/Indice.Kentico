@@ -34,7 +34,7 @@
     <Content Remove="..\..\icon\icon-310.png" />
   </ItemGroup>
   <ItemGroup>
-	<EmbeddedResource Include="..\..\icon\icon-310.png" />
+    <EmbeddedResource Include="..\..\icon\icon-310.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AngleSharp, Version=0.9.9.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
@@ -271,8 +271,8 @@
     <Reference Include="GlobalLink.Connect, Version=4.18.2.0, Culture=neutral, PublicKeyToken=946d606070618fd4, processorArchitecture=MSIL">
       <HintPath>..\..\packages\GlobalLink.Connect.4.18.3.1\lib\net46\GlobalLink.Connect.dll</HintPath>
     </Reference>
-    <Reference Include="IdentityModel, Version=4.1.1.0, Culture=neutral, PublicKeyToken=e7877f4675df049f, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\IdentityModel.4.1.1\lib\net461\IdentityModel.dll</HintPath>
+    <Reference Include="IdentityModel, Version=3.10.6.0, Culture=neutral, PublicKeyToken=e7877f4675df049f, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\IdentityModel.3.10.6\lib\net452\IdentityModel.dll</HintPath>
     </Reference>
     <Reference Include="Kentico.Membership, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Kentico.Membership.2.0.0\lib\net46\Kentico.Membership.dll</HintPath>
