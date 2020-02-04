@@ -1,6 +1,6 @@
 # Indice.Kentico
 
-This repo contains a custom authentication [HTTP Module](https://docs.microsoft.com/en-us/dotnet/api/system.web.ihttpmodule) and coresponding [HTTP handlers](https://docs.microsoft.com/en-us/dotnet/api/system.web.ihttphandler) for Kentico CMS in order to integrate with an OpenID Connect and OAuth 2.0 server, such as IdentitServer4.
+This repo contains a custom authentication [HTTP Module](https://docs.microsoft.com/en-us/dotnet/api/system.web.ihttpmodule) and coresponding [HTTP handlers](https://docs.microsoft.com/en-us/dotnet/api/system.web.ihttphandler) for Kentico CMS in order to integrate with an OpenID Connect and OAuth 2.0 server, such as IdentityServer4.
 
 ## How to use
 
