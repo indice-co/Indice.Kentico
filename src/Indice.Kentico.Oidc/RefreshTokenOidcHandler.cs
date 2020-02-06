@@ -17,19 +17,16 @@ namespace Indice.Kentico.Oidc
 
         public bool IsReusable => false;
 
-        public void ProcessRequest(HttpContext context)
-        {
+        public void ProcessRequest(HttpContext context) {
             // Read the stored refresh token:
             var refreshToken = context.GetToken(OidcConstants.TokenTypes.RefreshToken);
-            if (string.IsNullOrEmpty(refreshToken))
-            {
+            if (string.IsNullOrEmpty(refreshToken)) {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 context.Response.End();
             }
             var tokenEndpoint = OAuthConfiguration.Authority + "/connect/token";
             // Request a new access token.
-            var tokenResponse = Task.Run(() => HttpClient.RequestRefreshTokenAsync(new RefreshTokenRequest
-            {
+            var tokenResponse = Task.Run(() => HttpClient.RequestRefreshTokenAsync(new RefreshTokenRequest {
                 Address = tokenEndpoint,
                 ClientId = OAuthConfiguration.ClientId,
                 ClientSecret = OAuthConfiguration.ClientSecret,
@@ -38,29 +35,26 @@ namespace Indice.Kentico.Oidc
             .ConfigureAwait(false)
             .GetAwaiter()
             .GetResult();
-            if (tokenResponse.IsError)
-            {
+            if (tokenResponse.IsError) {
                 throw new Exception(tokenResponse.Error);
             }
             // Update cookie with new values.
             CookiesHelper.SetValue(
                 name: CookieNames.OAuthCookie,
                 values: new Dictionary<string, string> {
-                    { OidcConstants.TokenTypes.AccessToken, tokenResponse.AccessToken },
-                    { OidcConstants.TokenTypes.RefreshToken, tokenResponse.RefreshToken },
-                    { OidcConstants.TokenResponse.ExpiresIn, tokenResponse.ExpiresIn.ToString() },
-                    { OidcConstants.ResponseTypes.IdToken, tokenResponse.IdentityToken }
+                    [OidcConstants.TokenTypes.AccessToken] = tokenResponse.AccessToken,
+                    [OidcConstants.TokenTypes.RefreshToken] = tokenResponse.RefreshToken,
+                    [OidcConstants.TokenResponse.ExpiresIn] = tokenResponse.ExpiresIn.ToString(),
+                    [OidcConstants.ResponseTypes.IdToken] = tokenResponse.IdentityToken
                 },
                 expires: DateTime.UtcNow + TimeSpan.FromSeconds(tokenResponse.ExpiresIn)
             );
             context.Response.ContentType = "text/json";
-            context.Response.Write(JsonConvert.SerializeObject(new RenewTokenResponse
-            {
+            context.Response.Write(JsonConvert.SerializeObject(new RenewTokenResponse {
                 AccessToken = tokenResponse.AccessToken,
                 ExpiresIn = tokenResponse.ExpiresIn
             },
-            new JsonSerializerSettings
-            {
+            new JsonSerializerSettings {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             }));
         }
