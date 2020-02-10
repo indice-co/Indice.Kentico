@@ -6,14 +6,12 @@
     <Description>ASP.NET Authentication Module for Kentico and OpenID Connect</Description>
     <Copyright>Copyright © 2020</Copyright>
     <Authors>c.leftheris, g.manoltzas</Authors>
-    <VersionPrefix>11.0.2</VersionPrefix>
+    <VersionPrefix>11.0.3</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageId>Indice.Kentico.Oidc</PackageId>
     <PackageTags>kentico;AspNet;oidc;</PackageTags>
-    <PackageReleaseNotes>
-      HttpModule &amp; Handler.
-    </PackageReleaseNotes>
+    <PackageReleaseNotes>Create explicit handler for sign in.</PackageReleaseNotes>
     <PackageIcon>icon-128.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.Kentico</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -34,4 +32,7 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
+  <!--<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="start XCOPY /Y /R &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)..\Groupama.Cms\CMS\Bin&quot;" />
+  </Target>-->
 </Project>

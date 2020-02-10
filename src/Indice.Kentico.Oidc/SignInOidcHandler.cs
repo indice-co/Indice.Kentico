@@ -22,8 +22,7 @@ namespace Indice.Kentico.Oidc
         public bool IsReusable => false;
         public static event EventHandler<UserCreatedEventArgs> UserCreated;
 
-        public void ProcessRequest(HttpContext context)
-        {
+        public void ProcessRequest(HttpContext context) {
             var authorizationResponse = new AuthorizationResponse();
             // Authorization endpoint will give us back 4 values.
             // i)   code:          used in order to exchange the access token
@@ -32,15 +31,13 @@ namespace Indice.Kentico.Oidc
             // iv)  session_state: allows you to restore the previous state of your application
             authorizationResponse.PopulateFrom(context.Request.Form);
             // Check if authorization code is present in the response.
-            if (string.IsNullOrEmpty(authorizationResponse.Code))
-            {
+            if (string.IsNullOrEmpty(authorizationResponse.Code)) {
                 throw new Exception("Authorization code is not present in the response.");
             }
             var tokenEndpoint = OAuthConfiguration.Authority + "/connect/token";
             var userInfoEndpoint = OAuthConfiguration.Authority + "/connect/userinfo";
             // Finally exchange the authorization code with the access token.
-            var tokenResponse = Task.Run(() => HttpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest
-            {
+            var tokenResponse = Task.Run(() => HttpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest {
                 Address = tokenEndpoint,
                 ClientId = OAuthConfiguration.ClientId,
                 ClientSecret = OAuthConfiguration.ClientSecret,
@@ -50,29 +47,25 @@ namespace Indice.Kentico.Oidc
             .ConfigureAwait(false)
             .GetAwaiter()
             .GetResult();
-            if (tokenResponse.IsError)
-            {
+            if (tokenResponse.IsError) {
                 throw new Exception("There was an error retrieving the access token.", tokenResponse.Exception);
             }
             // Get user claims by calling the user info endpoint using the access token.
-            var userInfoResponse = Task.Run(() => HttpClient.GetUserInfoAsync(new UserInfoRequest
-            {
+            var userInfoResponse = Task.Run(() => HttpClient.GetUserInfoAsync(new UserInfoRequest {
                 Address = userInfoEndpoint,
                 Token = tokenResponse.AccessToken
             }))
             .ConfigureAwait(false)
             .GetAwaiter()
             .GetResult();
-            if (userInfoResponse.IsError)
-            {
+            if (userInfoResponse.IsError) {
                 throw new Exception("There was an error retrieving user information from authority.", userInfoResponse.Exception);
             }
             // It is important to get the email claim and check if the user exists locally.
             var userClaims = userInfoResponse.Claims;
             var userName = userClaims.GetValueOrDefault(JwtClaimTypes.Name);
             var email = userClaims.GetValueOrDefault(JwtClaimTypes.Email);
-            if (string.IsNullOrEmpty(userName))
-            {
+            if (string.IsNullOrEmpty(userName)) {
                 throw new Exception("Email cannot be found in user claims.");
             }
             // Check if the user exists in Kentico.
@@ -80,13 +73,11 @@ namespace Indice.Kentico.Oidc
             // Get admin claim so we can decide if we need to assign a specific role to the user. 
             var isAdmin = userClaims.GetValueOrDefault<bool>(CustomClaimTypes.Admin);
             // In this case we need to create the user.
-            if (userInfo == null)
-            {
+            if (userInfo == null) {
                 var firstName = userClaims.GetValueOrDefault(JwtClaimTypes.GivenName);
                 var lastName = userClaims.GetValueOrDefault(JwtClaimTypes.FamilyName);
                 // Creates a new user object.
-                userInfo = new UserInfo
-                {
+                userInfo = new UserInfo {
                     // Sets the user properties.
                     Email = email,
                     Enabled = true,
@@ -106,9 +97,8 @@ namespace Indice.Kentico.Oidc
                     User = userInfo,
                     Claims = userClaims
                 });
-            }
-            else // Update existing user's privilege level to reflect a possible change made on IdentityServer.
-            {
+            } else // Update existing user's privilege level to reflect a possible change made on IdentityServer.
+              {
                 userInfo.SiteIndependentPrivilegeLevel = isAdmin ? UserPrivilegeLevelEnum.GlobalAdmin : UserPrivilegeLevelEnum.None;
             }
             UserInfoProvider.SetUserInfo(userInfo);
@@ -126,8 +116,7 @@ namespace Indice.Kentico.Oidc
             );
             // Try to retrieve state in order to navigate the user back to where he initially requested.
             var returnUrl = "/";
-            if (!string.IsNullOrEmpty(authorizationResponse.State))
-            {
+            if (!string.IsNullOrEmpty(authorizationResponse.State)) {
                 var stateProvider = new StateProvider<string>();
                 var state = stateProvider.RetrieveState(authorizationResponse.State);
                 returnUrl = state;
@@ -136,15 +125,12 @@ namespace Indice.Kentico.Oidc
             context.Response.Redirect(returnUrl);
         }
 
-        private void AuthenticateUser(string userName, bool createPersistentCookie, bool loadCultures = true)
-        {
+        private void AuthenticateUser(string userName, bool createPersistentCookie, bool loadCultures = true) {
             var userInfo = UserInfoProvider.GetUserInfo(userName);
-            if (SecurityEvents.Authenticate.IsBound)
-            {
+            if (SecurityEvents.Authenticate.IsBound) {
                 SecurityEvents.Authenticate.StartEvent(ref userInfo, userName, string.Empty, string.Empty, null);
             }
-            if (userInfo == null)
-            {
+            if (userInfo == null) {
                 return;
             }
             // Represents the active login session.
@@ -153,8 +139,7 @@ namespace Indice.Kentico.Oidc
             var encryptedTicket = FormsAuthentication.Encrypt(ticket);
             HttpContext.Current.Response.Cookies.Add(new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket));
             MembershipContext.AuthenticatedUser = new CurrentUserInfo(userInfo, true);
-            if (loadCultures)
-            {
+            if (loadCultures) {
                 UserInfoProvider.SetPreferredCultures(userInfo);
             }
             var request = HttpContext.Current.Request;

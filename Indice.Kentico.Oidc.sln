@@ -5,11 +5,16 @@ VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BE5421C9-FDA2-484C-89BD-F092CAAB3A08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Kentico.Oidc", "src\Indice.Kentico.Oidc\Indice.Kentico.Oidc.csproj", "{3CC29A69-D9DE-4BEE-AEAB-8931E1537DB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Kentico.Oidc", "src\Indice.Kentico.Oidc\Indice.Kentico.Oidc.csproj", "{3CC29A69-D9DE-4BEE-AEAB-8931E1537DB0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{11743D9E-7320-4A0D-88E0-F33A709022EE}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{2D8DF01D-8DC6-4F02-9630-CFAC54F524F2}"
+	ProjectSection(SolutionItems) = preProject
+		misc\assets\setting.png = misc\assets\setting.png
 	EndProjectSection
 EndProject
 Global
@@ -28,6 +33,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3CC29A69-D9DE-4BEE-AEAB-8931E1537DB0} = {BE5421C9-FDA2-484C-89BD-F092CAAB3A08}
+		{2D8DF01D-8DC6-4F02-9630-CFAC54F524F2} = {11743D9E-7320-4A0D-88E0-F33A709022EE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6A85E67F-F066-4704-8362-7E786984210D}

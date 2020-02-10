@@ -15,46 +15,17 @@ namespace Indice.Kentico.Oidc
     {
         public OidcAuthenticationModule() { }
 
-        public void Init(HttpApplication context)
-        {
+        public void Init(HttpApplication context) {
             context.AuthenticateRequest += AuthenticateRequest;
             context.EndRequest += EndRequest;
         }
 
         public void Dispose() { }
 
-        private void AuthenticateRequest(object sender, EventArgs e)
-        {
-            if (HttpContext.Current.User != null)
-            {
-                return;
-            }
-            var hasAuthCookie = HttpContext.Current.Request.Cookies.AllKeys.Contains(FormsAuthentication.FormsCookieName);
-            if (!hasAuthCookie)
-            {
-                return;
-            }
-            var authCookie = HttpContext.Current.Request.Cookies[FormsAuthentication.FormsCookieName];
-            var authTicket = FormsAuthentication.Decrypt(authCookie.Value);
-            var principal = new ClaimsPrincipal(new FormsIdentity(authTicket));
-            SetPrincipal(principal);
-        }
-
-        private void EndRequest(object sender, EventArgs e)
-        {
-            var response = HttpContext.Current.Response;
-            // EndRequest is the last event in the pipeline. If status code is 401 then we are going to a protected area. 
-            if (response.StatusCode == 401)
-            {
-                RedirectToAuthority();
-            }
-        }
-
-        private void RedirectToAuthority()
-        {
+        public static void RedirectToAuthority(string returnUrl) {
             var authorizeEndpoint = OAuthConfiguration.Authority + "/connect/authorize";
             var stateProvider = new StateProvider<string>();
-            var currentPath = HttpContext.Current.Request.RawUrl;
+            var currentPath = returnUrl ?? string.Empty;
             var requestUrl = new RequestUrl(authorizeEndpoint);
             // Create the url to Identity Server's authorize endpoint.
             var authorizeUrl = requestUrl.CreateAuthorizeUrl(
@@ -66,18 +37,50 @@ namespace Indice.Kentico.Oidc
                 scope: OAuthConfiguration.Scopes.Join(" "),
                 state: stateProvider.CreateState(currentPath)
             );
-            if (!HttpContext.Current.Response.IsRequestBeingRedirected)
-            {
+            if (!HttpContext.Current.Response.IsRequestBeingRedirected) {
                 // Redirect the user to the authority.
                 HttpContext.Current.Response.Redirect(authorizeUrl);
             }
         }
 
-        private static void SetPrincipal(IPrincipal principal)
-        {
+        private void AuthenticateRequest(object sender, EventArgs e) {
+            if (HttpContext.Current.User != null) {
+                return;
+            }
+            var hasAuthCookie = HttpContext.Current.Request.Cookies.AllKeys.Contains(FormsAuthentication.FormsCookieName);
+            if (!hasAuthCookie) {
+                return;
+            }
+            var authCookie = HttpContext.Current.Request.Cookies[FormsAuthentication.FormsCookieName];
+            var authTicket = FormsAuthentication.Decrypt(authCookie.Value);
+            var principal = new ClaimsPrincipal(new FormsIdentity(authTicket));
+            SetPrincipal(principal);
+        }
+
+        private void EndRequest(object sender, EventArgs e) {
+            // EndRequest is the last event in the pipeline. If status code is 401 then we are going to a protected area. 
+            if (OAuthConfiguration.AutoRedirect && !HttpContext.Current.Request.IsAuthenticated) {
+                switch (HttpContext.Current.Response.StatusCode) {
+                    case 401:
+                        RedirectToAuthority(HttpContext.Current.Request.RawUrl);
+                        break;
+                    case 302:
+                        if (HttpContext.Current.Response.RedirectLocation.StartsWith("/cmspages/logon.aspx", StringComparison.InvariantCultureIgnoreCase)) {
+                            HttpContext.Current.Response.ClearHeaders();
+                            RedirectToAuthority(HttpContext.Current.Request.RawUrl);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+
+            }
+        }
+
+        private static void SetPrincipal(IPrincipal principal) {
             Thread.CurrentPrincipal = principal;
-            if (HttpContext.Current != null)
-            {
+            if (HttpContext.Current != null) {
                 HttpContext.Current.User = principal;
             }
         }
