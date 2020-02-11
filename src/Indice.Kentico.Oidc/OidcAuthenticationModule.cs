@@ -58,23 +58,17 @@ namespace Indice.Kentico.Oidc
         }
 
         private void EndRequest(object sender, EventArgs e) {
-            // EndRequest is the last event in the pipeline. If status code is 401 then we are going to a protected area. 
-            if (OAuthConfiguration.AutoRedirect && !HttpContext.Current.Request.IsAuthenticated) {
-                switch (HttpContext.Current.Response.StatusCode) {
-                    case 401:
-                        RedirectToAuthority(HttpContext.Current.Request.RawUrl);
-                        break;
-                    case 302:
-                        if (HttpContext.Current.Response.RedirectLocation.StartsWith("/cmspages/logon.aspx", StringComparison.InvariantCultureIgnoreCase)) {
-                            HttpContext.Current.Response.ClearHeaders();
-                            RedirectToAuthority(HttpContext.Current.Request.RawUrl);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            } else {
-
+            // EndRequest is the last event in the pipeline. If status code is 401 then we are going to a protected area.
+            if (HttpContext.Current.Response.StatusCode == 401) {
+                RedirectToAuthority(HttpContext.Current.Request.RawUrl);
+                return;
+            }
+            if (OAuthConfiguration.AutoRedirect 
+            && !HttpContext.Current.Request.IsAuthenticated 
+            && HttpContext.Current.Response.StatusCode == 302 
+            && HttpContext.Current.Response.RedirectLocation.StartsWith("/cmspages/logon.aspx", StringComparison.InvariantCultureIgnoreCase)) {
+                HttpContext.Current.Response.ClearHeaders();
+                RedirectToAuthority(HttpContext.Current.Request.RawUrl);
             }
         }
 
