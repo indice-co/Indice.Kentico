@@ -92,14 +92,16 @@ namespace Indice.Kentico.Oidc
                 // Created user must first be created and saved so we can update other properties in the next steps.
                 userInfo.AssignedSites.Add(SiteContext.CurrentSite);
                 UserInfoProvider.SetUserInfo(userInfo);
-                EventHandler<UserCreatedEventArgs> handler = UserCreated;
+                var handler = UserCreated;
                 handler?.Invoke(this, new UserCreatedEventArgs {
                     User = userInfo,
                     Claims = userClaims
                 });
-            } else // Update existing user's privilege level to reflect a possible change made on IdentityServer.
-              {
-                userInfo.SiteIndependentPrivilegeLevel = isAdmin ? UserPrivilegeLevelEnum.GlobalAdmin : UserPrivilegeLevelEnum.None;
+            } else {
+                // Update existing user's privilege level to reflect a possible change made on IdentityServer.
+                if (isAdmin) {
+                    userInfo.SiteIndependentPrivilegeLevel = UserPrivilegeLevelEnum.GlobalAdmin;
+                }
             }
             UserInfoProvider.SetUserInfo(userInfo);
             // Log the user in.

@@ -6,12 +6,12 @@
     <Description>ASP.NET Authentication Module for Kentico and OpenID Connect</Description>
     <Copyright>Copyright © 2020</Copyright>
     <Authors>c.leftheris, g.manoltzas</Authors>
-    <VersionPrefix>11.0.4</VersionPrefix>
+    <VersionPrefix>11.0.5</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageId>Indice.Kentico.Oidc</PackageId>
     <PackageTags>kentico;AspNet;oidc;</PackageTags>
-    <PackageReleaseNotes>Alter check for EndRequest.</PackageReleaseNotes>
+    <PackageReleaseNotes>Minor fix.</PackageReleaseNotes>
     <PackageIcon>icon-128.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.Kentico</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
