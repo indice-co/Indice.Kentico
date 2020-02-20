@@ -6,12 +6,12 @@
     <Description>ASP.NET Authentication Module for Kentico and OpenID Connect</Description>
     <Copyright>Copyright © 2020</Copyright>
     <Authors>c.leftheris, g.manoltzas</Authors>
-    <VersionPrefix>11.0.5</VersionPrefix>
+    <VersionPrefix>11.0.6</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageId>Indice.Kentico.Oidc</PackageId>
     <PackageTags>kentico;AspNet;oidc;</PackageTags>
-    <PackageReleaseNotes>Minor fix.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixes issue with configuration manager on non cloud services.</PackageReleaseNotes>
     <PackageIcon>icon-128.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.Kentico</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
