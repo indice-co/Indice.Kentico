@@ -57,6 +57,7 @@ namespace Indice.Kentico.Oidc
             new JsonSerializerSettings {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             }));
+            HttpContext.Current.ApplicationInstance.CompleteRequest();
         }
     }
 }

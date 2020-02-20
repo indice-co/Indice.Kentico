@@ -6,7 +6,7 @@
     <Description>ASP.NET Authentication Module for Kentico and OpenID Connect</Description>
     <Copyright>Copyright © 2020</Copyright>
     <Authors>c.leftheris, g.manoltzas</Authors>
-    <VersionPrefix>11.0.6</VersionPrefix>
+    <VersionPrefix>11.0.7</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageId>Indice.Kentico.Oidc</PackageId>

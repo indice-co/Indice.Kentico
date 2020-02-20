@@ -124,7 +124,8 @@ namespace Indice.Kentico.Oidc
                 returnUrl = state;
             }
             // Redirect to the requested page.
-            context.Response.Redirect(returnUrl);
+            context.Response.Redirect(returnUrl); 
+            HttpContext.Current.ApplicationInstance.CompleteRequest();
         }
 
         private void AuthenticateUser(string userName, bool createPersistentCookie, bool loadCultures = true) {

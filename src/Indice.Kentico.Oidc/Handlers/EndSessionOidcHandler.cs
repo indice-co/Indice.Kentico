@@ -32,6 +32,7 @@ namespace Indice.Kentico.Oidc
             {
                 HttpContext.Current.Response.Redirect(endSessionUrl);
             }
+            HttpContext.Current.ApplicationInstance.CompleteRequest();
         }
     }
 }

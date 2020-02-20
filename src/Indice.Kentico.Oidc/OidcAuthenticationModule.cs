@@ -41,6 +41,7 @@ namespace Indice.Kentico.Oidc
                 // Redirect the user to the authority.
                 HttpContext.Current.Response.Redirect(authorizeUrl);
             }
+            HttpContext.Current.ApplicationInstance.CompleteRequest();
         }
 
         private void AuthenticateRequest(object sender, EventArgs e) {
@@ -59,10 +60,11 @@ namespace Indice.Kentico.Oidc
 
         private void EndRequest(object sender, EventArgs e) {
             // EndRequest is the last event in the pipeline. If status code is 401 then we are going to a protected area.
-            if (HttpContext.Current.Response.StatusCode == 401) {
+            if (HttpContext.Current.Response.StatusCode == 401) { // this is for the admin login page to be redirected
                 RedirectToAuthority(HttpContext.Current.Request.RawUrl);
                 return;
             }
+            // this is for potential custom login.
             if (OAuthConfiguration.AutoRedirect 
             && !HttpContext.Current.Request.IsAuthenticated 
             && HttpContext.Current.Response.StatusCode == 302 
