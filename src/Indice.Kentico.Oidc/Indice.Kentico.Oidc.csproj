@@ -26,7 +26,6 @@
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="3.10.6" />
     <PackageReference Include="Kentico.Libraries" Version="11.0.49" />
-    <PackageReference Include="Microsoft.WindowsAzure.ConfigurationManager" Version="3.2.3" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web" />
