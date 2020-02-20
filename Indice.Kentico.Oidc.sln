@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{11743D9E-7
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{2D8DF01D-8DC6-4F02-9630-CFAC54F524F2}"
 	ProjectSection(SolutionItems) = preProject
-		misc\assets\setting.png = misc\assets\setting.png
+		misc\assets\setting.jpg = misc\assets\setting.jpg
 	EndProjectSection
 EndProject
 Global

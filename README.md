@@ -52,5 +52,5 @@ This repo contains a custom authentication [HTTP Module](https://docs.microsoft.
 4. Finally you will have to set the logon URL to the value of the handler that exists inside our package. 
 Open **Configuration** -> **Settings** -> **Security & Membership** and set the `Website logon page URL` field 
 (under Content section) and enter the value `/SignIn.ashx` as shown below. If this setting is set, it overrides the `Oidc:AutoRedirect` app setting.
-![Add setting](misc/assets/setting.png "Add setting")
+![Add setting](misc/assets/setting.jpg "Add setting")
 ***hint***: The response type that is currently used against the authorization endpoint is `code id_token` (so the `Hybrid flow` is used). The `code id_token` flow would get a `code` and `id_token` in the Authentication Response directly but you'd use the `code` to get an `access_token` from the Token endpoint.
