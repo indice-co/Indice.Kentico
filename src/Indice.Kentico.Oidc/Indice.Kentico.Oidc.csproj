@@ -11,7 +11,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Kentico.Oidc</PackageId>
     <PackageTags>kentico;AspNet;oidc;</PackageTags>
-    <PackageReleaseNotes>Fixes issue with configuration manager on non cloud services.</PackageReleaseNotes>
+    <PackageReleaseNotes>Adds finalization of auth request.</PackageReleaseNotes>
     <PackageIcon>icon-128.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.Kentico</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -19,6 +19,7 @@
     <RepositoryUrl>https://github.com/indice-co/Indice.Kentico</RepositoryUrl>
     <Company>Indice</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>11.0.9</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\icon\icon-128.png" Pack="true" Visible="false" PackagePath="" />
