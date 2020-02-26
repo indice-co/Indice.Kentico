@@ -6,7 +6,7 @@
     <Description>ASP.NET Authentication Module for Kentico and OpenID Connect</Description>
     <Copyright>Copyright © 2020</Copyright>
     <Authors>c.leftheris, g.manoltzas</Authors>
-    <VersionPrefix>11.0.8</VersionPrefix>
+    <VersionPrefix>11.0.9</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageId>Indice.Kentico.Oidc</PackageId>
@@ -19,7 +19,6 @@
     <RepositoryUrl>https://github.com/indice-co/Indice.Kentico</RepositoryUrl>
     <Company>Indice</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>11.0.9</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\icon\icon-128.png" Pack="true" Visible="false" PackagePath="" />
