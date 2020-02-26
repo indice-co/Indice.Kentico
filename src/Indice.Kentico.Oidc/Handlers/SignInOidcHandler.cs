@@ -157,6 +157,7 @@ namespace Indice.Kentico.Oidc
                 siteId: SiteContext.CurrentSiteID,
                 eventTime: DateTime.UtcNow
             );
+            AuthenticationHelper.FinalizeAuthenticationProcess(userInfo, SiteContext.CurrentSiteID);
         }
     }
 }
