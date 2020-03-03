@@ -87,11 +87,12 @@ namespace Indice.Kentico.Oidc
                     LastName = lastName,
                     SiteIndependentPrivilegeLevel = isAdmin ? UserPrivilegeLevelEnum.GlobalAdmin : UserPrivilegeLevelEnum.None,
                     UserCreated = DateTime.UtcNow,
-                    UserName = userName
+                    UserName = userName,
+                    UserIsDomain = true
                 };
                 // Created user must first be created and saved so we can update other properties in the next steps.
-                userInfo.AssignedSites.Add(SiteContext.CurrentSite);
                 UserInfoProvider.SetUserInfo(userInfo);
+                UserSiteInfoProvider.AddUserToSite(userInfo.UserID, SiteContext.CurrentSite.SiteID);
                 var handler = UserCreated;
                 handler?.Invoke(this, new UserCreatedEventArgs {
                     User = userInfo,
@@ -101,9 +102,9 @@ namespace Indice.Kentico.Oidc
                 // Update existing user's privilege level to reflect a possible change made on IdentityServer.
                 if (isAdmin) {
                     userInfo.SiteIndependentPrivilegeLevel = UserPrivilegeLevelEnum.GlobalAdmin;
+                    UserInfoProvider.SetUserInfo(userInfo);
                 }
             }
-            UserInfoProvider.SetUserInfo(userInfo);
             // Log the user in.
             AuthenticateUser(userInfo.UserName, true);
             CookiesHelper.SetValue(
@@ -124,7 +125,7 @@ namespace Indice.Kentico.Oidc
                 returnUrl = state;
             }
             // Redirect to the requested page.
-            context.Response.Redirect(returnUrl); 
+            context.Response.Redirect(returnUrl);
             HttpContext.Current.ApplicationInstance.CompleteRequest();
         }
 
