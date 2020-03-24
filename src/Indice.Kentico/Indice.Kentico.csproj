@@ -1,17 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
-    <AssemblyName>Indice.Kentico.Oidc</AssemblyName>
-    <AssemblyTitle>Indice.Kentico.Oidc</AssemblyTitle>
-    <Description>ASP.NET Authentication Module for Kentico and OpenID Connect</Description>
+    <TargetFramework>net46</TargetFramework>
+    <AssemblyName>Indice.Kentico</AssemblyName>
+    <AssemblyTitle>Indice.Kentico</AssemblyTitle>
+    <Description>Kentico extensions, utils and helpers</Description>
     <Copyright>Copyright © 2020</Copyright>
     <Authors>c.leftheris, g.manoltzas</Authors>
-    <VersionPrefix>12.0.2</VersionPrefix>
+    <VersionPrefix>11.0.2</VersionPrefix>
+    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
-    <PackageId>Indice.Kentico.Oidc</PackageId>
-    <PackageTags>kentico;AspNet;oidc;</PackageTags>
-    <PackageReleaseNotes>Fix error when assigning user site during local registration..</PackageReleaseNotes>
+    <PackageId>Indice.Kentico</PackageId>
+    <PackageTags>kentico;AspNet;</PackageTags>
+    <PackageReleaseNotes>Adds finalization of auth request.</PackageReleaseNotes>
     <PackageIcon>icon-128.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.Kentico</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -24,14 +26,10 @@
     <None Include="..\..\icon\icon-128.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="3.10.6" />
-    <PackageReference Include="Kentico.Libraries" Version="12.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
-  <!--<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="start XCOPY /Y /R &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)..\Groupama.Cms\CMS\Bin&quot;" />
-  </Target>-->
 </Project>
