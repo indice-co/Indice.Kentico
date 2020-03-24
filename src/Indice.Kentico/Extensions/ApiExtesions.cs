@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -72,10 +73,27 @@ namespace Indice.Kentico.Extensions
             }
         }
 
+        public static async Task OkAsync(this HttpContext context, Stream body) {
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = 200;
+            await body.CopyToAsync(context.Response.OutputStream);
+        }
+
         public static void Ok(this HttpContext context, object body) {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 200;
-            context.Response.Write(JsonConvert.SerializeObject(body, JsonSettings));
+            switch (body) {
+                case string json:
+                    context.Response.Write(json);
+                    break;
+                case Stream stream:
+                    stream.CopyTo(context.Response.OutputStream);
+                    break;
+                default:
+                    context.Response.Write(JsonConvert.SerializeObject(body, JsonSettings));
+                    break;
+            }
+            //context.Response.Write(JsonConvert.SerializeObject(body, JsonSettings));
         }
 
         public static void Created(this HttpContext context, object body, Uri location) {

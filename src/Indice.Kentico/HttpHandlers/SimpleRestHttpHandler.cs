@@ -33,7 +33,9 @@ namespace Indice.Kentico.HttpHandlers
             Configure(_builder);
         }
 
-        public abstract void Configure(SimpleMVCBuilder builder);
+        public virtual void Configure(SimpleMVCBuilder builder) { 
+        
+        }
 
         public override bool IsReusable => true;
 
