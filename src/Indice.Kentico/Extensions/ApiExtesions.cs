@@ -46,8 +46,15 @@ namespace Indice.Kentico.Extensions
             return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(request.QueryString.ToDictionary()));
         }
 
+        internal static object FromQuery(this HttpRequest request, Type modelType) {
+            return JsonConvert.DeserializeObject(JsonConvert.SerializeObject(request.QueryString.ToDictionary()), modelType);
+        }
+
         public static T FromForm<T>(this HttpRequest request) where T : class {
             return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(request.Form.ToDictionary()));
+        }
+        internal static object FromForm(this HttpRequest request, Type modelType) {
+            return JsonConvert.DeserializeObject(JsonConvert.SerializeObject(request.Form.ToDictionary()), modelType);
         }
 
         public static T FromBody<T>(this HttpRequest request) where T : class {
@@ -55,6 +62,13 @@ namespace Indice.Kentico.Extensions
             using (JsonTextReader jsonReader = new JsonTextReader(reader)) {
                 JsonSerializer ser = new JsonSerializer();
                 return ser.Deserialize<T>(jsonReader);
+            }
+        }
+        internal static object FromBody(this HttpRequest request, Type modelType) {
+            using (var reader = new StreamReader(request.InputStream))
+            using (JsonTextReader jsonReader = new JsonTextReader(reader)) {
+                JsonSerializer ser = new JsonSerializer();
+                return ser.Deserialize(jsonReader, modelType);
             }
         }
 

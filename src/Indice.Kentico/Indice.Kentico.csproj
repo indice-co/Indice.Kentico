@@ -8,6 +8,7 @@
     <Copyright>Copyright © 2020</Copyright>
     <Authors>c.leftheris, g.manoltzas</Authors>
     <VersionPrefix>11.0.0</VersionPrefix>
+    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageId>Indice.Kentico</PackageId>

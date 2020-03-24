@@ -17,7 +17,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{2D8DF0
 		misc\assets\setting.jpg = misc\assets\setting.jpg
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Kentico", "src\Indice.Kentico\Indice.Kentico.csproj", "{918FAD7D-1E60-4920-99AC-A6071E4824EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Kentico", "src\Indice.Kentico\Indice.Kentico.csproj", "{918FAD7D-1E60-4920-99AC-A6071E4824EC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{FA15BED2-A9FB-4A4F-BEFE-F2736E03DCD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Web.Sample", "samples\Indice.Web.Sample\Indice.Web.Sample.csproj", "{9DF46905-193C-4105-99BD-D8C95D7857CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,10 @@ Global
 		{918FAD7D-1E60-4920-99AC-A6071E4824EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{918FAD7D-1E60-4920-99AC-A6071E4824EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{918FAD7D-1E60-4920-99AC-A6071E4824EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DF46905-193C-4105-99BD-D8C95D7857CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DF46905-193C-4105-99BD-D8C95D7857CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DF46905-193C-4105-99BD-D8C95D7857CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DF46905-193C-4105-99BD-D8C95D7857CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,6 +49,7 @@ Global
 		{3CC29A69-D9DE-4BEE-AEAB-8931E1537DB0} = {BE5421C9-FDA2-484C-89BD-F092CAAB3A08}
 		{2D8DF01D-8DC6-4F02-9630-CFAC54F524F2} = {11743D9E-7320-4A0D-88E0-F33A709022EE}
 		{918FAD7D-1E60-4920-99AC-A6071E4824EC} = {BE5421C9-FDA2-484C-89BD-F092CAAB3A08}
+		{9DF46905-193C-4105-99BD-D8C95D7857CD} = {FA15BED2-A9FB-4A4F-BEFE-F2736E03DCD7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6A85E67F-F066-4704-8362-7E786984210D}
