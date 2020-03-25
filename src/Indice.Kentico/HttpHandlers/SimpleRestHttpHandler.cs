@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -51,8 +52,10 @@ namespace Indice.Kentico.HttpHandlers
             }
         }
 
-        private Task HandleActionByConventionAsync(HttpContext context, MethodInfo method) {
+        private async Task HandleActionByConventionAsync(HttpContext context, MethodInfo method) {
             var isAwaitable = typeof(Task).IsAssignableFrom(method.ReturnType);
+            var hasReturnType = typeof(Task<IActionResult>).IsAssignableFrom(method.ReturnType) || 
+                                typeof(IActionResult).IsAssignableFrom(method.ReturnType);
             var parameters = method.GetParameters();
             var arguments = new object[parameters.Length];
             for (var i = 0; i < parameters.Length; i++) {
@@ -72,11 +75,22 @@ namespace Indice.Kentico.HttpHandlers
                     }
                 }
             }
+            IActionResult actionResult = null;
             if (isAwaitable) {
-                return (Task)method.Invoke(this, arguments.ToArray());
+                if (hasReturnType) {
+                    actionResult = await(Task<IActionResult>)method.Invoke(this, arguments.ToArray());
+                } else {
+                    await (Task)method.Invoke(this, arguments.ToArray());
+                }
             } else {
-                method.Invoke(this, arguments.ToArray());
-                return Task.CompletedTask;
+                if (hasReturnType) {
+                    actionResult = (IActionResult)method.Invoke(this, arguments.ToArray());
+                } else {
+                    method.Invoke(this, arguments.ToArray());
+                }
+            }
+            if (actionResult != null) {
+                await actionResult.WriteTo(context);
             }
         }
 
@@ -136,6 +150,72 @@ namespace Indice.Kentico.HttpHandlers
             (type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>)));
 
         private bool IsNullable(Type type) => type.Equals(typeof(string)) || (type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>)));
+
+        protected IActionResult Ok(object body) {
+            return new SimpleActionResult {
+                StatusCode = 200,
+                Body = body
+            };
+        }
+        protected IActionResult Created(object body, Uri location) {
+            return new SimpleActionResult {
+                StatusCode = 201,
+                Body = body, 
+                Location = location
+            };
+        }
+        protected IActionResult NoContent() {
+            return new SimpleActionResult {
+                StatusCode = 204
+            };
+        }
+        protected IActionResult MovedPermanently(Uri location) {
+            return new SimpleActionResult {
+                StatusCode = 301,
+                Location = location
+            };
+        }
+        protected IActionResult Found(Uri location) {
+            return new SimpleActionResult {
+                StatusCode = 302,
+                Location = location
+            };
+        }
+        protected IActionResult BadRequest(string message = "", string code = null) {
+            return new SimpleActionResult {
+                StatusCode = 400,
+                Code = code,
+                Message = message
+            };
+        }
+        protected IActionResult Unauthorized(string message = "", string code = null) {
+            return new SimpleActionResult {
+                StatusCode = 401,
+                Code = code,
+                Message = message
+            };
+        }
+        protected IActionResult Forbidden(string message = "", string code = null) {
+            return new SimpleActionResult {
+                StatusCode = 403,
+                Code = code,
+                Message = message
+            };
+        }
+        protected IActionResult NotFound(string message = "", string code = null) {
+            return new SimpleActionResult {
+                StatusCode = 404,
+                Code = code,
+                Message = message
+            };
+        }
+        protected IActionResult ServerError(string message = "", string code = null) {
+            return new SimpleActionResult {
+                StatusCode = 500,
+                Code = code,
+                Message = message
+            };
+        }
     }
 
     public class SimpleMVCBuilder
@@ -168,6 +248,40 @@ namespace Indice.Kentico.HttpHandlers
                 }
             } catch (Exception ex) {
                 context.ServerError(ex.ToString());
+            }
+        }
+    }
+
+    public interface IActionResult
+    {
+        Task WriteTo(HttpContext context);
+    }
+
+    internal class SimpleActionResult : IActionResult
+    {
+        public int StatusCode { get; set; }
+        public string Message { get; set; }
+        public string Code { get; set; }
+        public object Body { get; set; }
+        public Uri Location { get; set; }
+
+        public async Task WriteTo(HttpContext context) {
+            switch (StatusCode) {
+                case 200 when Body is Stream:
+                    await context.OkAsync(Body as Stream);
+                    break;
+                case 200: context.Ok(Body); break;
+                case 201: context.Created(Body, Location); break;
+                case 204: context.NoContent(); break;
+                case 301: context.MovedPermanently(Location); break;
+                case 302: context.Found(Location); break;
+                case 400: context.BadRequest(Message, Code); break;
+                case 401: context.Unauthorized(Message, Code); break;
+                case 403: context.Forbidden(Message, Code); break;
+                case 404: context.NotFound(Message, Code); break;
+                case 500: context.ServerError(Message, Code); break;
+                default:
+                    break;
             }
         }
     }
