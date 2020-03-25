@@ -34,13 +34,13 @@ namespace Indice.Kentico.HttpHandlers
             Configure(_builder);
         }
 
-        public virtual void Configure(SimpleMVCBuilder builder) { 
+        protected virtual void Configure(SimpleMVCBuilder builder) { 
         
         }
 
         public override bool IsReusable => true;
 
-        public void DiscoverRoutesByConvention() {
+        private void DiscoverRoutesByConvention() {
             var methods = GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             foreach (var method in methods) {
                 if (VERBS.Any(v => method.Name.StartsWith(v, StringComparison.OrdinalIgnoreCase))) {
