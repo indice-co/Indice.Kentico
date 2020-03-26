@@ -158,5 +158,14 @@ namespace Indice.Kentico.Extensions
         public static void NoContent(this HttpContext context) {
             context.Response.StatusCode = 204;
         }
+
+        public static void Found(this HttpContext context, Uri location) {
+            context.Response.StatusCode = 302;
+            context.Response.RedirectLocation = location.ToString();
+        }
+        public static void MovedPermanently(this HttpContext context, Uri location) {
+            context.Response.StatusCode = 301;
+            context.Response.RedirectLocation = location.ToString();
+        }
     }
 }
