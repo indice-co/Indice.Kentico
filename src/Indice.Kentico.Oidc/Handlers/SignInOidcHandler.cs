@@ -102,18 +102,23 @@ namespace Indice.Kentico.Oidc
                 // Update existing user's privilege level to reflect a possible change made on IdentityServer.
                 if (isAdmin) {
                     userInfo.SiteIndependentPrivilegeLevel = UserPrivilegeLevelEnum.GlobalAdmin;
-                    UserInfoProvider.SetUserInfo(userInfo);
                 }
+                userInfo.UserIsDomain = true;
+                var userCurrentSite = UserSiteInfoProvider.GetUserSiteInfo(userInfo.UserID, SiteContext.CurrentSite.SiteID);
+                if (userCurrentSite == null) {
+                    UserSiteInfoProvider.AddUserToSite(userInfo.UserID, SiteContext.CurrentSite.SiteID);
+                }
+                UserInfoProvider.SetUserInfo(userInfo);
             }
             // Log the user in.
             AuthenticateUser(userInfo.UserName, true);
             CookiesHelper.SetValue(
                 name: CookieNames.OAuthCookie,
                 values: new Dictionary<string, string> {
-                        { OidcConstants.TokenTypes.AccessToken, tokenResponse.AccessToken },
-                        { OidcConstants.TokenTypes.RefreshToken, tokenResponse.RefreshToken },
-                        { OidcConstants.TokenResponse.ExpiresIn, tokenResponse.ExpiresIn.ToString() },
-                        { OidcConstants.ResponseTypes.IdToken, tokenResponse.IdentityToken }
+                    { OidcConstants.TokenTypes.AccessToken, tokenResponse.AccessToken },
+                    { OidcConstants.TokenTypes.RefreshToken, tokenResponse.RefreshToken },
+                    { OidcConstants.TokenResponse.ExpiresIn, tokenResponse.ExpiresIn.ToString() },
+                    { OidcConstants.ResponseTypes.IdToken, tokenResponse.IdentityToken }
                 },
                 expires: DateTime.UtcNow + TimeSpan.FromSeconds(tokenResponse.ExpiresIn)
             );

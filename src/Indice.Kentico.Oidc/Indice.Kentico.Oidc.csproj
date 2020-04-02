@@ -1,17 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net46</TargetFramework>
     <AssemblyName>Indice.Kentico.Oidc</AssemblyName>
     <AssemblyTitle>Indice.Kentico.Oidc</AssemblyTitle>
-    <Description>ASP.NET Authentication Module for Kentico and OpenID Connect</Description>
+    <Description>ASP.NET Authentication Module for Kentico and OpenID Connect.</Description>
     <Copyright>Copyright © 2020</Copyright>
     <Authors>c.leftheris, g.manoltzas</Authors>
-    <VersionPrefix>12.0.2</VersionPrefix>
+    <VersionPrefix>11.0.12</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageId>Indice.Kentico.Oidc</PackageId>
     <PackageTags>kentico;AspNet;oidc;</PackageTags>
-    <PackageReleaseNotes>Fix error when assigning user site during local registration..</PackageReleaseNotes>
+    <PackageReleaseNotes>Provision UserIsDomain flag and assigned site for older users.</PackageReleaseNotes>
     <PackageIcon>icon-128.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.Kentico</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
