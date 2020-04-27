@@ -115,6 +115,12 @@ namespace Indice.Kentico.HttpHandlers
                 } else if (typeof(int).Equals(type)) {
                     return 0;
                 }
+            } if (typeof(int?).Equals(type) || typeof(int).Equals(type)) {
+                if (int.TryParse(text, out var number)) {
+                    return number;
+                } else if (typeof(int).Equals(type)) {
+                    return 0;
+                }
             } else if (typeof(short?).Equals(type) || typeof(short).Equals(type)) {
                 if (short.TryParse(text, out var number)) {
                     return number;
@@ -126,6 +132,12 @@ namespace Indice.Kentico.HttpHandlers
                     return number;
                 } else if (typeof(long).Equals(type)) {
                     return 0;
+                }
+            } if (typeof(bool?).Equals(type) || typeof(bool).Equals(type)) {
+                if (bool.TryParse(text, out var number)) {
+                    return number;
+                } else if (typeof(bool).Equals(type)) {
+                    return false;
                 }
             } else if (typeof(DateTime?).Equals(type) || typeof(DateTime).Equals(type)) {
                 if (DateTime.TryParse(text, out var date)) {
