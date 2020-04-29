@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -10,16 +11,22 @@ namespace Indice.Kentico.Extensions
 {
     public static class XmlExtensions {
 
-        public static CultureInfo DateTimeCultureSettings = CultureInfo.InvariantCulture;
+        public static CultureInfo DefaultCultureSettings = CultureInfo.InvariantCulture;
 
-        public static T FirstOf<T>(this XElement xml, string elementName) {
-            return (T)ParseValue(typeof(T), xml.Descendants(XName.Get(elementName)).FirstOrDefault()?.Value);
+        public static T FirstOf<T>(this XElement xml, string elementName, string format = null) => (T)FirstOf(xml, elementName, typeof(T), format);
+        public static List<T> ListOf<T>(this XElement xml, string elementName, string format = null) => ListOf(xml, elementName, typeof(T), format).Select(x => (T)x).ToList();
+
+        public static string FirstOf(this XElement xml, string elementName) => FirstOf<string>(xml, elementName);
+        public static List<string> ListOf(this XElement xml, string elementName) => ListOf<string>(xml, elementName);
+
+        public static object FirstOf(this XElement xml, string elementName, Type type, string format = null) {
+            return ParseValue(type, xml.Descendants(XName.Get(elementName)).FirstOrDefault()?.Value, format);
         }
-        public static List<T> ListOf<T>(this XElement xml, string elementName) {
-            return xml.Descendants(XName.Get(elementName)).Select(x => (T)ParseValue(typeof(T), x.Value)).ToList();
+        public static IEnumerable<object> ListOf(this XElement xml, string elementName, Type type, string format = null) {
+            return xml.Descendants(XName.Get(elementName)).Select(x => ParseValue(type, x.Value, format));
         }
 
-        private static object ParseValue(Type type, string text) {
+        private static object ParseValue(Type type, string text, string format = null) {
             if (typeof(string).Equals(type))
                 return text;
             else if (typeof(double?).Equals(type) || typeof(double).Equals(type)) {
@@ -67,7 +74,10 @@ namespace Indice.Kentico.Extensions
                     return false;
                 }
             } else if (typeof(DateTime?).Equals(type) || typeof(DateTime).Equals(type)) {
-                if (DateTime.TryParse(text, DateTimeCultureSettings, DateTimeStyles.RoundtripKind, out var date)) {
+                var date = default(DateTime);
+                var success = string.IsNullOrEmpty(format) ? DateTime.TryParse(text, DefaultCultureSettings, DateTimeStyles.RoundtripKind, out date)
+                                                           : DateTime.TryParseExact(text, format, DefaultCultureSettings, DateTimeStyles.RoundtripKind, out date);
+                if (success) {
                     return date;
                 } else if (typeof(DateTime).Equals(type)) {
                     return default(DateTime);
