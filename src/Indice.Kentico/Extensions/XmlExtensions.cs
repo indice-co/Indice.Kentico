@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -70,6 +71,8 @@ namespace Indice.Kentico.Extensions
             if (typeof(bool?).Equals(type) || typeof(bool).Equals(type)) {
                 if (bool.TryParse(text, out var number)) {
                     return number;
+                } else if (!string.IsNullOrEmpty(text)) {
+                    return text == "1";
                 } else if (typeof(bool).Equals(type)) {
                     return false;
                 }
