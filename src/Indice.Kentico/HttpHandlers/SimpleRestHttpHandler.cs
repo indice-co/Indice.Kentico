@@ -53,8 +53,9 @@ namespace Indice.Kentico.HttpHandlers
         }
 
         private async Task HandleActionByConventionAsync(HttpContext context, MethodInfo method) {
+
             var isAwaitable = typeof(Task).IsAssignableFrom(method.ReturnType);
-            var hasReturnType = typeof(Task<IActionResult>).IsAssignableFrom(method.ReturnType) || 
+            var hasReturnType = typeof(Task<IActionResult>).IsAssignableFrom(method.ReturnType) ||
                                 typeof(IActionResult).IsAssignableFrom(method.ReturnType);
             var parameters = method.GetParameters();
             var arguments = new object[parameters.Length];
@@ -78,7 +79,7 @@ namespace Indice.Kentico.HttpHandlers
             IActionResult actionResult = null;
             if (isAwaitable) {
                 if (hasReturnType) {
-                    actionResult = await(Task<IActionResult>)method.Invoke(this, arguments.ToArray());
+                    actionResult = await (Task<IActionResult>)method.Invoke(this, arguments.ToArray());
                 } else {
                     await (Task)method.Invoke(this, arguments.ToArray());
                 }
@@ -232,17 +233,35 @@ namespace Indice.Kentico.HttpHandlers
 
     public class SimpleMVCBuilder
     {
+        protected List<string> AllowedOrigins { get; } = new List<string>();
         protected Dictionary<string, Func<HttpContext, Task>> Routes { get; private set; } = new Dictionary<string, Func<HttpContext, Task>>(StringComparer.OrdinalIgnoreCase);
+
+        public SimpleMVCBuilder AddCorsAllowedOrigin(string origin) {
+            AllowedOrigins.Add(origin);
+            return this;
+        }
 
         public SimpleMVCBuilder MapRoute(string action, string verb, Func<HttpContext, Task> handler) {
             Routes.Add($"{verb.ToUpper()} {action.ToLower()}", handler);
             return this;
         }
 
+        private void WriteDefaultResponseHeaders(HttpContext context) {
+            if (AllowedOrigins.Count > 0 && context.Request.Headers.AllKeys.Contains("Origin")) {
+                if (AllowedOrigins.Contains("*")) {
+                    context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                } else if (AllowedOrigins.Contains(context.Request.Headers["Origin"], StringComparer.OrdinalIgnoreCase)) {
+                    context.Response.Headers.Add("Access-Control-Allow-Origin", context.Request.Headers["Origin"]);
+                    context.Response.Headers.Add("Vary", "Origin");
+                }
+            }
+        }
+
         internal async Task ProcessRequestAsync(HttpContext context) {
             var query = context.Request.QueryString;
             var action = query["action"]?.ToLower();
             context.Response.ContentType = "application/json";
+            WriteDefaultResponseHeaders(context);
             string requestUrl = $"{context.Request.HttpMethod.ToUpper()} {action.ToLower()}";
             try {
                 Func<HttpContext, Task> handler;

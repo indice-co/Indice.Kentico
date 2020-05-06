@@ -16,6 +16,10 @@ namespace Indice.Web.Sample.Api
     {
         private static readonly Dictionary<int, object> items = new Dictionary<int, object>();
 
+        protected override void Configure(SimpleMVCBuilder builder) {
+            builder.AddCorsAllowedOrigin("*");
+        }
+
         public IActionResult GetItems(int? id) {
             if (id.HasValue) {
                 if (!items.ContainsKey(id.Value)) {
