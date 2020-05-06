@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
@@ -167,5 +168,48 @@ namespace Indice.Kentico.Extensions
             context.Response.StatusCode = 301;
             context.Response.RedirectLocation = location.ToString();
         }
+
+
+        public static void SetCacheData<T>(this HttpContext context, string cacheKey, T data, int expiresInMinutes = 60) where T : class {
+            SetCacheData(context, cacheKey, data, DateTime.Now.AddMinutes(expiresInMinutes));
+        }
+
+        public static void SetCacheData<T>(this HttpContext context, string cacheKey, T data, DateTime expirationDate) {
+            SetCacheData(context, cacheKey, data == null ? (string)null : JsonConvert.SerializeObject(data, JsonSettings), expirationDate);
+        }
+
+        public static void SetCacheData(this HttpContext context, string cacheKey, string data, DateTime expirationDate) {
+            if (cacheKey is null) {
+                throw new ArgumentNullException(nameof(cacheKey));
+            }
+            try {
+                // Cache menu
+                if (data != null) {
+                    context.Cache.Insert(cacheKey, data, null, expirationDate, System.Web.Caching.Cache.NoSlidingExpiration);
+                } else if (context.Cache[cacheKey] != null) {
+                    context.Cache.Remove(cacheKey);
+                }
+            } catch {
+                ;
+            }
+        }
+
+        public static T GetCacheData<T>(this HttpContext context, string cacheKey) where T : class {
+            var data = GetCacheData(context, cacheKey);
+            return data != null ? JsonConvert.DeserializeObject<T>(data, JsonSettings) : null;
+        }
+
+        public static string GetCacheData(this HttpContext context, string cacheKey) {
+            if (cacheKey is null) {
+                throw new ArgumentNullException(nameof(cacheKey));
+            }
+            try {
+                return (string)context.Cache.Get(cacheKey);
+            } catch {
+                ;
+            }
+            return null;
+        }
+
     }
 }
