@@ -247,7 +247,7 @@ namespace Indice.Kentico.HttpHandlers
         }
 
         private void WriteDefaultResponseHeaders(HttpContext context) {
-            if (AllowedOrigins.Count > 0 && context.Request.Headers.AllKeys.Contains("Origin")) {
+            if (AllowedOrigins.Count > 0 && !string.IsNullOrWhiteSpace(context.Request.Headers["Origin"])) {
                 if (AllowedOrigins.Contains("*")) {
                     context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
                 } else if (AllowedOrigins.Contains(context.Request.Headers["Origin"], StringComparer.OrdinalIgnoreCase)) {
