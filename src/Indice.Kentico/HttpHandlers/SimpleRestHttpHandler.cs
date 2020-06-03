@@ -249,7 +249,7 @@ namespace Indice.Kentico.HttpHandlers
         }
 
         public SimpleMVCBuilder MapRoute(string action, string verb, Func<HttpContext, Task> handler) {
-            Routes.Add($"{verb.ToUpper()} {action.ToLower()}", handler);
+            Routes.Add($"{verb.ToUpper()} {action?.ToLower()}", handler);
             return this;
         }
 
@@ -269,19 +269,23 @@ namespace Indice.Kentico.HttpHandlers
             var action = query["action"]?.ToLower();
             context.Response.ContentType = "application/json";
             WriteDefaultResponseHeaders(context);
-            string requestUrl = $"{context.Request.HttpMethod.ToUpper()} {action.ToLower()}";
+            string requestUrl = $"{context.Request.HttpMethod.ToUpper()} {action}";
             try {
                 Func<HttpContext, Task> handler;
                 if (Routes.ContainsKey(requestUrl)) {
                     handler = Routes[requestUrl];
                     await handler(context);
                     return;
-                } else if (context.Request.HttpMethod == "HEAD" && Routes.ContainsKey($"GET {action.ToLower()}")) {
-                    handler = Routes[$"GET {context.Request.Path.ToLower()}"];
+                } else if (context.Request.HttpMethod == "HEAD" && Routes.ContainsKey($"GET {action}")) {
+                    handler = Routes[$"GET {action}"];
                     await handler(context);
                     return;
                 } else if (context.Request.HttpMethod == "OPTIONS") {
-                    var allowedVerbs = Routes.Keys.Select(x => x.Split(' ')).Where(x => x[1] != null && x[1].Equals(action.ToLower())).Select(x => x[0]).ToArray();
+                    var allowedVerbs = Routes.Keys.Select(x => x.Split(' '))
+                                                  .Where(x => (x.Length == 1 && action == null) || (x.Length > 1 && x[1].Equals(action)))
+                                                  .Select(x => x[0])
+                                                  .Distinct()
+                                                  .ToArray();
                     context.Response.Headers.Add("Allow", string.Join(", ", allowedVerbs));
                     context.MethodNotAllowed();
                 } else {

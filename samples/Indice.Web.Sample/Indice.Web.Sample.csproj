@@ -162,6 +162,7 @@
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Api\Rest.ashx" />
     <Content Include="Api\Web.Config" />
+    <Content Include="Api\Rest1.ashx" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -198,6 +199,9 @@
     <Content Include="Site.Mobile.Master" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\Rest1.ashx.cs">
+      <DependentUpon>Rest1.ashx</DependentUpon>
+    </Compile>
     <Compile Include="Api\Rest.ashx.cs">
       <DependentUpon>Rest.ashx</DependentUpon>
     </Compile>
