@@ -17,7 +17,7 @@ namespace Indice.Kentico.HttpHandlers
     /// </summary>
     public abstract class SimpleRestHttpHandler : HttpTaskAsyncHandler
     {
-        private static readonly string [] VERBS = new[] { "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD" };
+        private static readonly string [] VERBS = new[] { "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS" };
         private static readonly Regex PASCAL_CASE_EXPRESSION = new Regex("(?<=[A-Za-z])(?=[A-Z][a-z])|(?<=[a-z0-9])(?=[0-9]?[A-Z])");
         private readonly SimpleMVCBuilder _builder;
         public SimpleRestHttpHandler() {
@@ -164,6 +164,13 @@ namespace Indice.Kentico.HttpHandlers
 
         private bool IsNullable(Type type) => type.Equals(typeof(string)) || (type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>)));
 
+
+        protected IActionResult MethodNotAllowed() {
+            return new SimpleActionResult {
+                StatusCode = 405,
+            };
+        }
+
         protected IActionResult Ok(object body) {
             return new SimpleActionResult {
                 StatusCode = 200,
@@ -273,6 +280,10 @@ namespace Indice.Kentico.HttpHandlers
                     handler = Routes[$"GET {context.Request.Path.ToLower()}"];
                     await handler(context);
                     return;
+                } else if (context.Request.HttpMethod == "OPTIONS") {
+                    var allowedVerbs = Routes.Keys.Select(x => x.Split(' ')).Where(x => x[1] != null && x[1].Equals(action.ToLower())).Select(x => x[0]).ToArray();
+                    context.Response.Headers.Add("Allow", string.Join(", ", allowedVerbs));
+                    context.MethodNotAllowed();
                 } else {
                     context.NotFound();
                     return;
@@ -310,6 +321,7 @@ namespace Indice.Kentico.HttpHandlers
                 case 401: context.Unauthorized(Message, Code); break;
                 case 403: context.Forbidden(Message, Code); break;
                 case 404: context.NotFound(Message, Code); break;
+                case 405: context.MethodNotAllowed(); break;
                 case 500: context.ServerError(Message, Code); break;
                 default:
                     break;

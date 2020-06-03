@@ -17,7 +17,8 @@ namespace Indice.Web.Sample.Api
         private static readonly Dictionary<int, object> items = new Dictionary<int, object>();
 
         protected override void Configure(SimpleMVCBuilder builder) {
-            builder.AddCorsAllowedOrigin("*");
+            builder.AddCorsAllowedOrigin("www.groupama.gr");
+            builder.AddCorsAllowedOrigin("www.indice.gr");
         }
 
         public IActionResult GetItems(int? id) {

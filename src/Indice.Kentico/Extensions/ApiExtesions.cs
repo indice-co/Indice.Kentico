@@ -80,10 +80,12 @@ namespace Indice.Kentico.Extensions
             await body.CopyToAsync(context.Response.OutputStream);
         }
 
-        public static void Ok(this HttpContext context, object body) {
+        public static void Ok(this HttpContext context, object body = null) {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 200;
             switch (body) {
+                case null:
+                    break;
                 case string json:
                     context.Response.Write(json);
                     break;
@@ -145,6 +147,9 @@ namespace Indice.Kentico.Extensions
             }, JsonSettings));
         }
 
+        public static void MethodNotAllowed(this HttpContext context) {
+            context.Response.StatusCode = 405;
+        }
         public static void ServerError(this HttpContext context, string message = "", string code = null) {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 500;
