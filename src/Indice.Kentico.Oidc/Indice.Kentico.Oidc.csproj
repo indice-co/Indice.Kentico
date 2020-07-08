@@ -6,12 +6,12 @@
     <Description>ASP.NET Authentication Module for Kentico and OpenID Connect.</Description>
     <Copyright>Copyright © 2020</Copyright>
     <Authors>c.leftheris, g.manoltzas</Authors>
-    <VersionPrefix>11.0.12</VersionPrefix>
+    <VersionPrefix>11.0.14</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageId>Indice.Kentico.Oidc</PackageId>
     <PackageTags>kentico;AspNet;oidc;</PackageTags>
-    <PackageReleaseNotes>Provision UserIsDomain flag and assigned site for older users.</PackageReleaseNotes>
+    <PackageReleaseNotes>Create user with email as username.</PackageReleaseNotes>
     <PackageIcon>icon-128.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.Kentico</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
