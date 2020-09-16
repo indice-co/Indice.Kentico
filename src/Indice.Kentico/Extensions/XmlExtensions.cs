@@ -31,13 +31,13 @@ namespace Indice.Kentico.Extensions
             if (typeof(string).Equals(type))
                 return text;
             else if (typeof(double?).Equals(type) || typeof(double).Equals(type)) {
-                if (double.TryParse(text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var number)) {
+                if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var number)) {
                     return number;
                 } else if (typeof(double).Equals(type)) {
                     return 0.0;
                 }
             } else if (typeof(decimal?).Equals(type) || typeof(decimal).Equals(type)) {
-                if (decimal.TryParse(text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var number)) {
+                if (decimal.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var number)) {
                     return number;
                 } else if (typeof(decimal).Equals(type)) {
                     return 0.0M;

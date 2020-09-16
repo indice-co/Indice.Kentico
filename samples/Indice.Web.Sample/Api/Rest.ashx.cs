@@ -78,6 +78,16 @@ namespace Indice.Web.Sample.Api
             }
         }
 
+        public IActionResult GetTest() {
+
+            //double test1 = (double)XmlExtensions.ParseValue(typeof(double), "2.60");
+            //double test2 = (double)XmlExtensions.ParseValue(typeof(double), "2.60000000000005E-03");
+            //double test3 = (double)XmlExtensions.ParseValue(typeof(double), "600");
+            //double test4 = (double)XmlExtensions.ParseValue(typeof(double), ".43");
+
+            return NoContent();
+        }
+
         public class Item
         {
             public int? Id { get; set; }
