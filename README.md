@@ -45,6 +45,7 @@ This repo contains a custom authentication [HTTP Module](https://docs.microsoft.
         <add key="Oidc:ClientId" value="my_portal" />
         <add key="Oidc:ClientSecret" value="my_strong_secret" />
         <add key="Oidc:Scopes" value="openid offline_access profile api1 api2" />
+        <add key="Oidc:AuthorizeEndpointPath" value="connect/authorize" />
     </appSettings>
 </configuration>
 ```
