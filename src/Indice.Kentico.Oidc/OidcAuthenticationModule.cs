@@ -23,7 +23,7 @@ namespace Indice.Kentico.Oidc
         public void Dispose() { }
 
         public static void RedirectToAuthority(string returnUrl) {
-            var authorizeEndpoint = OAuthConfiguration.Authority + "/connect/authorize";
+            var authorizeEndpoint = $"{OAuthConfiguration.Authority}/{OAuthConfiguration.AuthorizeEndpointPath}";
             var stateProvider = new StateProvider<string>();
             var currentPath = returnUrl ?? string.Empty;
             var requestUrl = new RequestUrl(authorizeEndpoint);
