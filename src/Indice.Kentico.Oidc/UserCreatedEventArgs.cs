@@ -7,7 +7,7 @@ namespace Indice.Kentico.Oidc
 {
     public class UserCreatedEventArgs : EventArgs
     {
-        public UserInfo User { get; internal set; }
+        public UserInfo User { get; set; }
         public IEnumerable<Claim> Claims { get; set; }
     }
 }
