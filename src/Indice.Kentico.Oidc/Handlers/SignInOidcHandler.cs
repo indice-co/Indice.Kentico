@@ -63,7 +63,7 @@ namespace Indice.Kentico.Oidc
             }
             // It is important to get the email claim and check if the user exists locally.
             var userClaims = userInfoResponse.Claims;
-            var userName = userClaims.GetValueOrDefault(JwtClaimTypes.Name);
+            var userName = userClaims.GetValueOrDefault(OAuthConfiguration.UserNameClaim ?? JwtClaimTypes.Name);
             var email = userClaims.GetValueOrDefault(JwtClaimTypes.Email);
             if (string.IsNullOrEmpty(userName)) {
                 throw new Exception("Email cannot be found in user claims.");

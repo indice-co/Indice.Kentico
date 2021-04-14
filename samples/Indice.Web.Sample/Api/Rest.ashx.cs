@@ -16,6 +16,11 @@ namespace Indice.Web.Sample.Api
     {
         private static readonly Dictionary<int, object> items = new Dictionary<int, object>();
 
+        protected override void Configure(SimpleMVCBuilder builder) {
+            builder.AddCorsAllowedOrigin("www.groupama.gr");
+            builder.AddCorsAllowedOrigin("www.indice.gr");
+        }
+
         public IActionResult GetItems(int? id) {
             if (id.HasValue) {
                 if (!items.ContainsKey(id.Value)) {
@@ -71,6 +76,16 @@ namespace Indice.Web.Sample.Api
             } else {
                 return BadRequest();
             }
+        }
+
+        public IActionResult GetTest() {
+
+            //double test1 = (double)XmlExtensions.ParseValue(typeof(double), "2.60");
+            //double test2 = (double)XmlExtensions.ParseValue(typeof(double), "2.60000000000005E-03");
+            //double test3 = (double)XmlExtensions.ParseValue(typeof(double), "600");
+            //double test4 = (double)XmlExtensions.ParseValue(typeof(double), ".43");
+
+            return NoContent();
         }
 
         public class Item

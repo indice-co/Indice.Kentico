@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
@@ -79,10 +80,12 @@ namespace Indice.Kentico.Extensions
             await body.CopyToAsync(context.Response.OutputStream);
         }
 
-        public static void Ok(this HttpContext context, object body) {
+        public static void Ok(this HttpContext context, object body = null) {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 200;
             switch (body) {
+                case null:
+                    break;
                 case string json:
                     context.Response.Write(json);
                     break;
@@ -144,6 +147,9 @@ namespace Indice.Kentico.Extensions
             }, JsonSettings));
         }
 
+        public static void MethodNotAllowed(this HttpContext context) {
+            context.Response.StatusCode = 405;
+        }
         public static void ServerError(this HttpContext context, string message = "", string code = null) {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 500;
@@ -167,5 +173,48 @@ namespace Indice.Kentico.Extensions
             context.Response.StatusCode = 301;
             context.Response.RedirectLocation = location.ToString();
         }
+
+
+        public static void SetCacheData<T>(this HttpContext context, string cacheKey, T data, int expiresInMinutes = 60) where T : class {
+            SetCacheData(context, cacheKey, data, DateTime.Now.AddMinutes(expiresInMinutes));
+        }
+
+        public static void SetCacheData<T>(this HttpContext context, string cacheKey, T data, DateTime expirationDate) {
+            SetCacheData(context, cacheKey, data == null ? (string)null : JsonConvert.SerializeObject(data, JsonSettings), expirationDate);
+        }
+
+        public static void SetCacheData(this HttpContext context, string cacheKey, string data, DateTime expirationDate) {
+            if (cacheKey is null) {
+                throw new ArgumentNullException(nameof(cacheKey));
+            }
+            try {
+                // Cache menu
+                if (data != null) {
+                    context.Cache.Insert(cacheKey, data, null, expirationDate, System.Web.Caching.Cache.NoSlidingExpiration);
+                } else if (context.Cache[cacheKey] != null) {
+                    context.Cache.Remove(cacheKey);
+                }
+            } catch {
+                ;
+            }
+        }
+
+        public static T GetCacheData<T>(this HttpContext context, string cacheKey) where T : class {
+            var data = GetCacheData(context, cacheKey);
+            return data != null ? JsonConvert.DeserializeObject<T>(data, JsonSettings) : null;
+        }
+
+        public static string GetCacheData(this HttpContext context, string cacheKey) {
+            if (cacheKey is null) {
+                throw new ArgumentNullException(nameof(cacheKey));
+            }
+            try {
+                return (string)context.Cache.Get(cacheKey);
+            } catch {
+                ;
+            }
+            return null;
+        }
+
     }
 }

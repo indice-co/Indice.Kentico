@@ -17,7 +17,7 @@ namespace Indice.Kentico.HttpHandlers
     /// </summary>
     public abstract class SimpleRestHttpHandler : HttpTaskAsyncHandler
     {
-        private static readonly string [] VERBS = new[] { "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD" };
+        private static readonly string [] VERBS = new[] { "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS" };
         private static readonly Regex PASCAL_CASE_EXPRESSION = new Regex("(?<=[A-Za-z])(?=[A-Z][a-z])|(?<=[a-z0-9])(?=[0-9]?[A-Z])");
         private readonly SimpleMVCBuilder _builder;
         public SimpleRestHttpHandler() {
@@ -53,8 +53,9 @@ namespace Indice.Kentico.HttpHandlers
         }
 
         private async Task HandleActionByConventionAsync(HttpContext context, MethodInfo method) {
+
             var isAwaitable = typeof(Task).IsAssignableFrom(method.ReturnType);
-            var hasReturnType = typeof(Task<IActionResult>).IsAssignableFrom(method.ReturnType) || 
+            var hasReturnType = typeof(Task<IActionResult>).IsAssignableFrom(method.ReturnType) ||
                                 typeof(IActionResult).IsAssignableFrom(method.ReturnType);
             var parameters = method.GetParameters();
             var arguments = new object[parameters.Length];
@@ -78,7 +79,7 @@ namespace Indice.Kentico.HttpHandlers
             IActionResult actionResult = null;
             if (isAwaitable) {
                 if (hasReturnType) {
-                    actionResult = await(Task<IActionResult>)method.Invoke(this, arguments.ToArray());
+                    actionResult = await (Task<IActionResult>)method.Invoke(this, arguments.ToArray());
                 } else {
                     await (Task)method.Invoke(this, arguments.ToArray());
                 }
@@ -115,6 +116,12 @@ namespace Indice.Kentico.HttpHandlers
                 } else if (typeof(int).Equals(type)) {
                     return 0;
                 }
+            } if (typeof(int?).Equals(type) || typeof(int).Equals(type)) {
+                if (int.TryParse(text, out var number)) {
+                    return number;
+                } else if (typeof(int).Equals(type)) {
+                    return 0;
+                }
             } else if (typeof(short?).Equals(type) || typeof(short).Equals(type)) {
                 if (short.TryParse(text, out var number)) {
                     return number;
@@ -126,6 +133,12 @@ namespace Indice.Kentico.HttpHandlers
                     return number;
                 } else if (typeof(long).Equals(type)) {
                     return 0;
+                }
+            } if (typeof(bool?).Equals(type) || typeof(bool).Equals(type)) {
+                if (bool.TryParse(text, out var number)) {
+                    return number;
+                } else if (typeof(bool).Equals(type)) {
+                    return false;
                 }
             } else if (typeof(DateTime?).Equals(type) || typeof(DateTime).Equals(type)) {
                 if (DateTime.TryParse(text, out var date)) {
@@ -150,6 +163,13 @@ namespace Indice.Kentico.HttpHandlers
             (type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>)));
 
         private bool IsNullable(Type type) => type.Equals(typeof(string)) || (type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>)));
+
+
+        protected IActionResult MethodNotAllowed() {
+            return new SimpleActionResult {
+                StatusCode = 405,
+            };
+        }
 
         protected IActionResult Ok(object body) {
             return new SimpleActionResult {
@@ -220,28 +240,54 @@ namespace Indice.Kentico.HttpHandlers
 
     public class SimpleMVCBuilder
     {
+        protected List<string> AllowedOrigins { get; } = new List<string>();
         protected Dictionary<string, Func<HttpContext, Task>> Routes { get; private set; } = new Dictionary<string, Func<HttpContext, Task>>(StringComparer.OrdinalIgnoreCase);
 
-        public SimpleMVCBuilder MapRoute(string action, string verb, Func<HttpContext, Task> handler) {
-            Routes.Add($"{verb.ToUpper()} {action.ToLower()}", handler);
+        public SimpleMVCBuilder AddCorsAllowedOrigin(string origin) {
+            AllowedOrigins.Add(origin);
             return this;
+        }
+
+        public SimpleMVCBuilder MapRoute(string action, string verb, Func<HttpContext, Task> handler) {
+            Routes.Add($"{verb.ToUpper()} {action?.ToLower()}", handler);
+            return this;
+        }
+
+        private void WriteDefaultResponseHeaders(HttpContext context) {
+            if (AllowedOrigins.Count > 0 && !string.IsNullOrWhiteSpace(context.Request.Headers["Origin"])) {
+                if (AllowedOrigins.Contains("*")) {
+                    context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                } else if (AllowedOrigins.Contains(context.Request.Headers["Origin"], StringComparer.OrdinalIgnoreCase)) {
+                    context.Response.Headers.Add("Access-Control-Allow-Origin", context.Request.Headers["Origin"]);
+                    context.Response.Headers.Add("Vary", "Origin");
+                }
+            }
         }
 
         internal async Task ProcessRequestAsync(HttpContext context) {
             var query = context.Request.QueryString;
             var action = query["action"]?.ToLower();
             context.Response.ContentType = "application/json";
-            string requestUrl = $"{context.Request.HttpMethod.ToUpper()} {action.ToLower()}";
+            WriteDefaultResponseHeaders(context);
+            string requestUrl = $"{context.Request.HttpMethod.ToUpper()} {action}";
             try {
                 Func<HttpContext, Task> handler;
                 if (Routes.ContainsKey(requestUrl)) {
                     handler = Routes[requestUrl];
                     await handler(context);
                     return;
-                } else if (context.Request.HttpMethod == "HEAD" && Routes.ContainsKey($"GET {action.ToLower()}")) {
-                    handler = Routes[$"GET {context.Request.Path.ToLower()}"];
+                } else if (context.Request.HttpMethod == "HEAD" && Routes.ContainsKey($"GET {action}")) {
+                    handler = Routes[$"GET {action}"];
                     await handler(context);
                     return;
+                } else if (context.Request.HttpMethod == "OPTIONS") {
+                    var allowedVerbs = Routes.Keys.Select(x => x.Split(' '))
+                                                  .Where(x => (x.Length == 1 && action == null) || (x.Length > 1 && x[1].Equals(action)))
+                                                  .Select(x => x[0])
+                                                  .Distinct()
+                                                  .ToArray();
+                    context.Response.Headers.Add("Allow", string.Join(", ", allowedVerbs));
+                    context.MethodNotAllowed();
                 } else {
                     context.NotFound();
                     return;
@@ -279,6 +325,7 @@ namespace Indice.Kentico.HttpHandlers
                 case 401: context.Unauthorized(Message, Code); break;
                 case 403: context.Forbidden(Message, Code); break;
                 case 404: context.NotFound(Message, Code); break;
+                case 405: context.MethodNotAllowed(); break;
                 case 500: context.ServerError(Message, Code); break;
                 default:
                     break;
