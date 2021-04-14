@@ -63,13 +63,13 @@ namespace Indice.Kentico.Oidc
             }
             // It is important to get the email claim and check if the user exists locally.
             var userClaims = userInfoResponse.Claims;
-            var userName = userClaims.GetValueOrDefault(JwtClaimTypes.Name);
+            var userName = userClaims.GetValueOrDefault(OAuthConfiguration.UserNameClaim ?? JwtClaimTypes.Name);
             var email = userClaims.GetValueOrDefault(JwtClaimTypes.Email);
             if (string.IsNullOrEmpty(userName)) {
                 throw new Exception("Email cannot be found in user claims.");
             }
             // Check if the user exists in Kentico.
-            var userInfo = UserInfoProvider.GetUserInfo(email);
+            var userInfo = UserInfoProvider.GetUserInfo(userName);
             // Get admin claim so we can decide if we need to assign a specific role to the user. 
             var isAdmin = userClaims.GetValueOrDefault<bool>(CustomClaimTypes.Admin);
             // In this case we need to create the user.
@@ -87,7 +87,7 @@ namespace Indice.Kentico.Oidc
                     LastName = lastName,
                     SiteIndependentPrivilegeLevel = isAdmin ? UserPrivilegeLevelEnum.GlobalAdmin : UserPrivilegeLevelEnum.None,
                     UserCreated = DateTime.UtcNow,
-                    UserName = email,
+                    UserName = userName,
                     UserIsDomain = true
                 };
                 // Created user must first be created and saved so we can update other properties in the next steps.
