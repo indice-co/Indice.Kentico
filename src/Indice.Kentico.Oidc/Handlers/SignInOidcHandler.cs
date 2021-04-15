@@ -22,6 +22,7 @@ namespace Indice.Kentico.Oidc
 
         public bool IsReusable => false;
         public static event EventHandler<UserCreatedEventArgs> UserCreated;
+        public static event EventHandler<UserLoggedInEventArgs> UserLoggedIn;
 
         public void ProcessRequest(HttpContext context) {
             var authorizationResponse = new AuthorizationResponse();
@@ -152,6 +153,13 @@ namespace Indice.Kentico.Oidc
             }
             // Log the user in.
             AuthenticateUser(userInfo.UserName, true);
+            // raise logged in event
+            var handlerLoggedIn = UserLoggedIn;
+            handlerLoggedIn?.Invoke(this, new UserLoggedInEventArgs {
+                User = userInfo,
+                Claims = userClaims
+            });
+
             CookiesHelper.SetValue(
                 name: CookieNames.OAuthCookie,
                 values: new Dictionary<string, string> {
