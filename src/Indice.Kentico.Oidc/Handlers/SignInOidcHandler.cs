@@ -151,15 +151,15 @@ namespace Indice.Kentico.Oidc
                 }
                 UserInfoProvider.SetUserInfo(userInfo);
             }
-            // Log the user in.
-            AuthenticateUser(userInfo.UserName, true);
             // raise logged in event
             var handlerLoggedIn = UserLoggedIn;
             handlerLoggedIn?.Invoke(this, new UserLoggedInEventArgs {
                 User = userInfo,
                 Claims = userClaims
             });
-
+            // Log the user in.
+            AuthenticateUser(userInfo.UserName, true);
+            
             CookiesHelper.SetValue(
                 name: CookieNames.OAuthCookie,
                 values: new Dictionary<string, string> {
