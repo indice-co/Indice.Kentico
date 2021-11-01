@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <AssemblyName>Indice.Kentico.Oidc</AssemblyName>
     <AssemblyTitle>Indice.Kentico.Oidc</AssemblyTitle>
     <Description>ASP.NET Authentication Module for Kentico and OpenID Connect.</Description>
@@ -11,7 +11,7 @@
   <PropertyGroup Label="Package">
     <PackageId>Indice.Kentico.Oidc</PackageId>
     <PackageTags>kentico;AspNet;oidc;</PackageTags>
-    <PackageReleaseNotes>Add authorize endpoint path as setting.</PackageReleaseNotes>
+    <PackageReleaseNotes>Changes for integration with AWS Cognito.</PackageReleaseNotes>
     <PackageIcon>icon-128.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.Kentico</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -25,7 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="3.10.6" />
-    <PackageReference Include="Kentico.Libraries" Version="11.0.49" />
+    <PackageReference Include="Kentico.Libraries" Version="12.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web" />

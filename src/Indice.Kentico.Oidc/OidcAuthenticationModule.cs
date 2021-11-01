@@ -2,6 +2,7 @@
 using IdentityModel;
 using IdentityModel.Client;
 using System;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -23,20 +24,21 @@ namespace Indice.Kentico.Oidc
         public void Dispose() { }
 
         public static void RedirectToAuthority(string returnUrl) {
-            var authorizeEndpoint =  $"{OAuthConfiguration.Authority}/{OAuthConfiguration.AuthorizeEndpointPath}";
+            var authorizeEndpoint = $"{OAuthConfiguration.Authority}/{OAuthConfiguration.AuthorizeEndpointPath}";
             var stateProvider = new StateProvider<string>();
             var currentPath = returnUrl ?? string.Empty;
             var requestUrl = new RequestUrl(authorizeEndpoint);
+
             // Create the url to Identity Server's authorize endpoint.
             var authorizeUrl = requestUrl.CreateAuthorizeUrl(
                 clientId: OAuthConfiguration.ClientId,
-                responseType: OidcConstants.ResponseTypes.CodeIdToken, // Requests an authorization code and identity token.
-                responseMode: OidcConstants.ResponseModes.FormPost, // Sends the token response as a form post instead of a fragment encoded redirect.
+                responseType: (OAuthConfiguration.ResponseType == "CodeIdToken")? OidcConstants.ResponseTypes.CodeIdToken : OidcConstants.ResponseTypes.Code, 
                 redirectUri: $"{OAuthConfiguration.Host}/SignInOidc.ashx",
                 nonce: Guid.NewGuid().ToString(), // Identity Server will echo back the nonce value in the identity token (this is for replay protection).
                 scope: OAuthConfiguration.Scopes.Join(" "),
                 state: stateProvider.CreateState(currentPath)
             );
+
             if (!HttpContext.Current.Response.IsRequestBeingRedirected) {
                 // Redirect the user to the authority.
                 HttpContext.Current.Response.Redirect(authorizeUrl);
