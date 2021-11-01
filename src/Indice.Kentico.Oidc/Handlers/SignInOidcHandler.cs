@@ -6,6 +6,7 @@ using IdentityModel;
 using IdentityModel.Client;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
@@ -24,19 +25,34 @@ namespace Indice.Kentico.Oidc
 
         public void ProcessRequest(HttpContext context) {
             var authorizationResponse = new AuthorizationResponse();
-            // Authorization endpoint will give us back 4 values.
+            // If response_type is "code id_token", the authorization endpoint will give us back 
+            //4 values.
             // i)   code:          used in order to exchange the access token
             // ii)  id_token:      contains user's authentication information in an encoded format
             // iii) scope:         the access privileges requested for access token
             // iv)  session_state: allows you to restore the previous state of your application
-            authorizationResponse.PopulateFrom(context.Request.Form);
+            //
+            // If response_type is "code", the authorization endpoint will give us back 2 values:
+            // i)   code:          used in order to exchange the access token
+            // ii)  state:         provide by us; allows you to restore the previous state of your application
+
+            // Begin by determining whether authorization (code) or hybrid flow (code id_token)
+
+            if (OAuthConfiguration.ResponseType == "CodeIdToken") {
+                authorizationResponse.PopulateFrom(context.Request.Form);
+            } else {
+                authorizationResponse.Code = context.Request.QueryString["code"];
+                authorizationResponse.State = context.Request.QueryString["state"];
+            }
+
             // Check if authorization code is present in the response.
             if (string.IsNullOrEmpty(authorizationResponse.Code)) {
                 throw new Exception("Authorization code is not present in the response.");
             }
-            var tokenEndpoint = OAuthConfiguration.Authority + "/connect/token";
-            var userInfoEndpoint = OAuthConfiguration.Authority + "/connect/userinfo";
-            // Finally exchange the authorization code with the access token.
+            var tokenEndpoint = OAuthConfiguration.Authority + "/" + OAuthConfiguration.TokenEndpointPath;
+            var userInfoEndpoint = OAuthConfiguration.Authority + "/" +OAuthConfiguration.UserInfoEndpointPath;
+
+            // Use the authorization code to retrieve access and id tokens.
             var tokenResponse = Task.Run(() => HttpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest {
                 Address = tokenEndpoint,
                 ClientId = OAuthConfiguration.ClientId,
@@ -47,8 +63,15 @@ namespace Indice.Kentico.Oidc
             .ConfigureAwait(false)
             .GetAwaiter()
             .GetResult();
+ 
             if (tokenResponse.IsError) {
                 throw new Exception("There was an error retrieving the access token.", tokenResponse.Exception);
+            }
+
+            // If using an authorization code flow, we get the id_token from the token endpoint
+            // so we populate it now into the authorizationResponse object
+            if (OAuthConfiguration.ResponseType == "Code") {
+                authorizationResponse.IdToken = tokenResponse.Json["id_token"].ToString();
             }
             // Get user claims by calling the user info endpoint using the access token.
             var userInfoResponse = Task.Run(() => HttpClient.GetUserInfoAsync(new UserInfoRequest {
@@ -58,24 +81,40 @@ namespace Indice.Kentico.Oidc
             .ConfigureAwait(false)
             .GetAwaiter()
             .GetResult();
+
+            //LOGGING//
+            StreamWriter sw5 = new StreamWriter("c:\\docs\\logfile1.txt", append: true);
+            sw5.WriteLine("The token response is: " + tokenResponse.Json);
+            sw5.WriteLine("The endpoint is: " + userInfoEndpoint);
+            sw5.WriteLine("The error is: " + userInfoResponse.Error);
+            sw5.WriteLine("The raw is: " + userInfoResponse.Raw);
+            sw5.Close();
+            //END LOGGING//
+
             if (userInfoResponse.IsError) {
                 throw new Exception("There was an error retrieving user information from authority.", userInfoResponse.Exception);
             }
             // It is important to get the email claim and check if the user exists locally.
             var userClaims = userInfoResponse.Claims;
-            var userName = userClaims.GetValueOrDefault(OAuthConfiguration.UserNameClaim ?? JwtClaimTypes.Name);
+
+            //Commented out from original code
+            //var userName = userClaims.GetValueOrDefault(OAuthConfiguration.UserNameClaim ?? JwtClaimTypes.Name);
+            var userName = userInfoResponse.Json[OAuthConfiguration.UserNameClaim].ToString();
             var email = userClaims.GetValueOrDefault(JwtClaimTypes.Email);
             if (string.IsNullOrEmpty(userName)) {
-                throw new Exception("Email cannot be found in user claims.");
+                throw new Exception("Username cannot be found in user claims.");
             }
             // Check if the user exists in Kentico.
-            var userInfo = UserInfoProvider.GetUserInfo(userName);
+            UserInfo userInfo = UserInfoProvider.GetUserInfo(userName);
+
             // Get admin claim so we can decide if we need to assign a specific role to the user. 
             var isAdmin = userClaims.GetValueOrDefault<bool>(CustomClaimTypes.Admin);
+
             // In this case we need to create the user.
             if (userInfo == null) {
                 var firstName = userClaims.GetValueOrDefault(JwtClaimTypes.GivenName);
                 var lastName = userClaims.GetValueOrDefault(JwtClaimTypes.FamilyName);
+
                 // Creates a new user object.
                 userInfo = new UserInfo{
                     // Sets the user properties.
@@ -90,6 +129,7 @@ namespace Indice.Kentico.Oidc
                     UserName = userName,
                     UserIsDomain = true
                 };
+
                 // Created user must first be created and saved so we can update other properties in the next steps.
                 UserInfoProvider.SetUserInfo(userInfo);
                 UserSiteInfoProvider.AddUserToSite(userInfo.UserID, SiteContext.CurrentSite.SiteID);
@@ -104,9 +144,9 @@ namespace Indice.Kentico.Oidc
                     userInfo.SiteIndependentPrivilegeLevel = UserPrivilegeLevelEnum.GlobalAdmin;
                 }
                 userInfo.UserIsDomain = true;
-                var userCurrentSite = UserSiteInfoProvider.GetUserSiteInfo(userInfo.UserID, SiteContext.CurrentSite.SiteID);
+                var userCurrentSite = UserSiteInfoProvider.GetUserSiteInfo(userInfo.UserID, SiteContext.CurrentSiteID);
                 if (userCurrentSite == null) {
-                    UserSiteInfoProvider.AddUserToSite(userInfo.UserID, SiteContext.CurrentSite.SiteID);
+                    UserSiteInfoProvider.AddUserToSite(userInfo.UserID, SiteContext.CurrentSiteID);
                 }
                 UserInfoProvider.SetUserInfo(userInfo);
             }
@@ -127,8 +167,19 @@ namespace Indice.Kentico.Oidc
             if (!string.IsNullOrEmpty(authorizationResponse.State)) {
                 var stateProvider = new StateProvider<string>();
                 var state = stateProvider.RetrieveState(authorizationResponse.State);
-                returnUrl = state;
+                if (state != "") {
+                    returnUrl = state;
+                }
+                else {
+                    returnUrl = OAuthConfiguration.Host;
+                }
             }
+            //LOGGING//
+            StreamWriter sw6 = new StreamWriter("c:\\docs\\logfile1.txt", append: true);
+            sw6.WriteLine("The URL is: " + returnUrl);
+            sw6.Close();
+            //END LOGGING//
+
             // Redirect to the requested page.
             context.Response.Redirect(returnUrl);
             HttpContext.Current.ApplicationInstance.CompleteRequest();
