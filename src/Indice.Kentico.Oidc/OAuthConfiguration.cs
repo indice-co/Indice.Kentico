@@ -15,7 +15,7 @@ namespace Indice.Kentico.Oidc
         public static string ResponseType => ConfigurationManager.AppSettings["Oidc:ResponseType"];
         public static string UserNameClaim => ConfigurationManager.AppSettings["Oidc:UserNameClaim"] ?? "username"; 
         public static string AuthorizeEndpointPath => ConfigurationManager.AppSettings["Oidc:AuthorizeEndpointPath"]?.TrimStart('/') ?? "connect/authorize";
-        public static string TokenEndpointPath => ConfigurationManager.AppSettings["Oidc:TokenEndpointPath"]?.TrimStart('/') ?? "connect/authorize";
-        public static string UserInfoEndpointPath => ConfigurationManager.AppSettings["Oidc:UserInfoEndpointPath"]?.TrimStart('/') ?? "connect/authorize";
+        public static string TokenEndpointPath => ConfigurationManager.AppSettings["Oidc:TokenEndpointPath"]?.TrimStart('/') ?? "connect/token";
+        public static string UserInfoEndpointPath => ConfigurationManager.AppSettings["Oidc:UserInfoEndpointPath"]?.TrimStart('/') ?? "connect/userinfo";
     }
 }
