@@ -1,37 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
-    <AssemblyName>Indice.Kentico.Oidc</AssemblyName>
-    <AssemblyTitle>Indice.Kentico.Oidc</AssemblyTitle>
-    <Description>ASP.NET Authentication Module for Kentico and OpenID Connect.</Description>
-    <Copyright>Copyright © 2020</Copyright>
-    <Authors>c.leftheris, g.manoltzas</Authors>
-    <VersionPrefix>12.0.5</VersionPrefix>
+    <VersionPrefix>$(KenticoVersion).0.8</VersionPrefix>
   </PropertyGroup>
-  <PropertyGroup Label="Package">
-    <PackageId>Indice.Kentico.Oidc</PackageId>
-    <PackageTags>kentico;AspNet;oidc;</PackageTags>
-    <PackageReleaseNotes>Changes for integration with AWS Cognito.</PackageReleaseNotes>
-    <PackageIcon>icon-128.png</PackageIcon>
-    <PackageProjectUrl>https://github.com/indice-co/Indice.Kentico</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/indice-co/Indice.Kentico</RepositoryUrl>
-    <Company>Indice</Company>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  <PropertyGroup>
+    <DefineConstants Condition="$(KenticoVersion) == '9'">Kentico9</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\..\icon\icon-128.png" Pack="true" Visible="false" PackagePath="" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="3.10.6" />
+  </ItemGroup>
+  <ItemGroup Condition="$(KenticoVersion) == '9'">
+    <PackageReference Include="Kentico.Libraries" Version="9.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="$(KenticoVersion) == '11'">
+    <PackageReference Include="Kentico.Libraries" Version="11.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="$(KenticoVersion) != '11' and $(KenticoVersion) != '9'">
     <PackageReference Include="Kentico.Libraries" Version="12.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
-  <!--<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="start XCOPY /Y /R &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)..\Groupama.Cms\CMS\Bin&quot;" />
-  </Target>-->
 </Project>

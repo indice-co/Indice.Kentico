@@ -84,12 +84,11 @@ namespace Indice.Kentico.Oidc
             .GetResult();
 
             //LOGGING//
-            StreamWriter sw5 = new StreamWriter("c:\\docs\\logfile1.txt", append: true);
-            sw5.WriteLine("The token response is: " + tokenResponse.Json);
-            sw5.WriteLine("The endpoint is: " + userInfoEndpoint);
-            sw5.WriteLine("The error is: " + userInfoResponse.Error);
-            sw5.WriteLine("The raw is: " + userInfoResponse.Raw);
-            sw5.Close();
+            System.Diagnostics.Debug.WriteLine("The token response is: " + tokenResponse.Json);
+            System.Diagnostics.Debug.WriteLine("The token response is: " + tokenResponse.Json);
+            System.Diagnostics.Debug.WriteLine("The endpoint is: " + userInfoEndpoint);
+            System.Diagnostics.Debug.WriteLine("The error is: " + userInfoResponse.Error);
+            System.Diagnostics.Debug.WriteLine("The raw is: " + userInfoResponse.Raw);
             //END LOGGING//
 
             if (userInfoResponse.IsError) {
@@ -125,7 +124,11 @@ namespace Indice.Kentico.Oidc
                     FullName = $"{firstName} {lastName}",
                     IsExternal = true,
                     LastName = lastName,
+#if Kentico9 
+                    IsGlobalAdministrator = isAdmin,
+#else
                     SiteIndependentPrivilegeLevel = isAdmin ? UserPrivilegeLevelEnum.GlobalAdmin : UserPrivilegeLevelEnum.None,
+#endif
                     UserCreated = DateTime.UtcNow,
                     UserName = userName,
                     UserIsDomain = true
@@ -142,7 +145,11 @@ namespace Indice.Kentico.Oidc
             } else {
                 // Update existing user's privilege level to reflect a possible change made on IdentityServer.
                 if (isAdmin) {
+#if Kentico9
+                    userInfo.IsGlobalAdministrator = true;
+#else
                     userInfo.SiteIndependentPrivilegeLevel = UserPrivilegeLevelEnum.GlobalAdmin;
+#endif
                 }
                 userInfo.UserIsDomain = true;
                 var userCurrentSite = UserSiteInfoProvider.GetUserSiteInfo(userInfo.UserID, SiteContext.CurrentSiteID);
@@ -182,11 +189,7 @@ namespace Indice.Kentico.Oidc
                     returnUrl = OAuthConfiguration.Host;
                 }
             }
-            //LOGGING//
-            StreamWriter sw6 = new StreamWriter("c:\\docs\\logfile1.txt", append: true);
-            sw6.WriteLine("The URL is: " + returnUrl);
-            sw6.Close();
-            //END LOGGING//
+            System.Diagnostics.Debug.WriteLine("The URL is: " + returnUrl);
 
             // Redirect to the requested page.
             context.Response.Redirect(returnUrl);
