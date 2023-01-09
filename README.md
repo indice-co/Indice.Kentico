@@ -25,7 +25,7 @@ This repo contains a custom authentication [HTTP Module](https://docs.microsoft.
     </modules>
     <handlers>
         <add name="SignInHandler" verb="GET" path="SignIn.ashx" type="Indice.Kentico.Oidc.SignInHandler, Indice.Kentico.Oidc" />
-        <add name="SignInOidcHandler" verb="GET" path="SignInOidc.ashx" type="Indice.Kentico.Oidc.SignInOidcHandler, Indice.Kentico.Oidc" />
+        <add name="SignInOidcHandler" verb="GET,POST" path="SignInOidc.ashx" type="Indice.Kentico.Oidc.SignInOidcHandler, Indice.Kentico.Oidc" />
         <add name="RefreshTokenOidcHandler" verb="POST" path="RefreshTokenOidc.ashx" type="Indice.Kentico.Oidc.RefreshTokenOidcHandler, Indice.Kentico.Oidc" />
         <add name="EndSessionOidcHandler" verb="GET" path="SignOut.ashx" type="Indice.Kentico.Oidc.EndSessionOidcHandler, Indice.Kentico.Oidc" />
     </handlers>
