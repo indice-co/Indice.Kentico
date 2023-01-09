@@ -37,8 +37,8 @@ namespace Indice.Kentico.Oidc
         /// <summary>
         /// Can be either <strong>code</strong> or <strong>code id_token</strong>. The first identifies code flow and the second is the hybrid flow.
         /// </summary>
-        /// <remarks>Defaults to <strong>code</strong></remarks>
-        public static string ResponseType => ConfigurationManager.AppSettings["Oidc:ResponseType"] ?? "code";
+        /// <remarks>Defaults to <strong>code id_token</strong></remarks>
+        public static string ResponseType => ConfigurationManager.AppSettings["Oidc:ResponseType"]?.Trim() ?? "code id_token";
         /// <summary>
         /// Username claim type. Defaults to jwt <see cref="JwtClaimTypes.Name"/> ('name'). But should change this via webconfig to 'username' in case of AWS cognito.
         /// </summary>
