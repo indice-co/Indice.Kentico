@@ -11,12 +11,18 @@ using System.Web;
 
 namespace Indice.Kentico.Oidc
 {
+
+    /// <summary>
+    /// The refresh handler. <strong>/RefreshTokenOidc.ashx</strong>
+    /// </summary>
     public class RefreshTokenOidcHandler : IHttpHandler
     {
         private static readonly HttpClient HttpClient = new HttpClient();
 
+        /// <inheritdoc/>
         public bool IsReusable => false;
 
+        /// <inheritdoc/>
         public void ProcessRequest(HttpContext context) {
             // Read the stored refresh token:
             var refreshToken = context.GetToken(OidcConstants.TokenTypes.RefreshToken);
@@ -24,7 +30,7 @@ namespace Indice.Kentico.Oidc
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 context.Response.End();
             }
-            var tokenEndpoint = OAuthConfiguration.Authority + "/connect/token";
+            var tokenEndpoint = OAuthConfiguration.Authority + "/" + OAuthConfiguration.TokenEndpointPath;
             // Request a new access token.
             var tokenResponse = Task.Run(() => HttpClient.RequestRefreshTokenAsync(new RefreshTokenRequest {
                 Address = tokenEndpoint,

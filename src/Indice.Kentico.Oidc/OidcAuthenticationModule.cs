@@ -12,17 +12,27 @@ using System.Web.Security;
 
 namespace Indice.Kentico.Oidc
 {
+    /// <summary>
+    /// Open ID connect authentication module for Kentico. Replaces the built in forms one that is provided by kentico libs.
+    /// </summary>
     public class OidcAuthenticationModule : IHttpModule
     {
+        /// <inheritdoc/>
         public OidcAuthenticationModule() { }
 
+        /// <inheritdoc/>
         public void Init(HttpApplication context) {
             context.AuthenticateRequest += AuthenticateRequest;
             context.EndRequest += EndRequest;
         }
 
+        /// <inheritdoc/>
         public void Dispose() { }
 
+        /// <summary>
+        /// Redirects to the authority (identity provider) for authorization.
+        /// </summary>
+        /// <param name="returnUrl"></param>
         public static void RedirectToAuthority(string returnUrl) {
             var authorizeEndpoint = $"{OAuthConfiguration.Authority}/{OAuthConfiguration.AuthorizeEndpointPath}";
             var stateProvider = new StateProvider<string>();
@@ -32,7 +42,7 @@ namespace Indice.Kentico.Oidc
             // Create the url to Identity Server's authorize endpoint.
             var authorizeUrl = requestUrl.CreateAuthorizeUrl(
                 clientId: OAuthConfiguration.ClientId,
-                responseType: (OAuthConfiguration.ResponseType == "CodeIdToken")? OidcConstants.ResponseTypes.CodeIdToken : OidcConstants.ResponseTypes.Code, 
+                responseType: OAuthConfiguration.ResponseType, 
                 redirectUri: $"{OAuthConfiguration.Host}/SignInOidc.ashx",
                 nonce: Guid.NewGuid().ToString(), // Identity Server will echo back the nonce value in the identity token (this is for replay protection).
                 scope: OAuthConfiguration.Scopes.Join(" "),

@@ -4,14 +4,28 @@ using System.Text;
 
 namespace Indice.Kentico.Oidc
 {
+    /// <summary>
+    /// State helper in order to serialize and send back and forth while authenticating with the identity provider.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class StateProvider<T> where T : class
     {
+        /// <summary>
+        /// serialize state
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public string CreateState(T data)
         {
             var stateJson = JsonConvert.SerializeObject(data);
             return Base64Encode(stateJson);
         }
 
+        /// <summary>
+        /// deserialize state
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns></returns>
         public T RetrieveState(string state)
         {
             var decodedState = Base64Decode(state);

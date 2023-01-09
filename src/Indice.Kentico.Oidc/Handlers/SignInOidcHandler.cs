@@ -14,16 +14,29 @@ using System.Web.Security;
 
 namespace Indice.Kentico.Oidc
 {
+    /// <summary>
+    /// The sign in handler for the oidc callback. <strong>/SignInOidc.ashx</strong>
+    /// </summary>
     public class SignInOidcHandler : IHttpHandler
     {
         private static readonly HttpClient HttpClient = new HttpClient();
-
+        /// <summary>
+        /// constructs the handler
+        /// </summary>
         public SignInOidcHandler() { }
 
+        /// <inheritdoc/>
         public bool IsReusable => false;
+        /// <summary>
+        /// On user created event. Fired once if the user is new to Kentico.
+        /// </summary>
         public static event EventHandler<UserCreatedEventArgs> UserCreated;
+        /// <summary>
+        /// This is fired always on successful login.
+        /// </summary>
         public static event EventHandler<UserLoggedInEventArgs> UserLoggedIn;
 
+        /// <inheritdoc/>
         public void ProcessRequest(HttpContext context) {
             var authorizationResponse = new AuthorizationResponse();
             // If response_type is "code id_token", the authorization endpoint will give us back 
@@ -39,11 +52,10 @@ namespace Indice.Kentico.Oidc
 
             // Begin by determining whether authorization (code) or hybrid flow (code id_token)
 
-            if (OAuthConfiguration.ResponseType == "CodeIdToken") {
+            if (OAuthConfiguration.ResponseType == OidcConstants.ResponseTypes.CodeIdToken || OAuthConfiguration.ResponseType == OidcConstants.ResponseTypes.CodeIdTokenToken) {
                 authorizationResponse.PopulateFrom(context.Request.Form);
             } else {
-                authorizationResponse.Code = context.Request.QueryString["code"];
-                authorizationResponse.State = context.Request.QueryString["state"];
+                authorizationResponse.PopulateFrom(context.Request.QueryString);
             }
 
             // Check if authorization code is present in the response.
@@ -51,7 +63,7 @@ namespace Indice.Kentico.Oidc
                 throw new Exception("Authorization code is not present in the response.");
             }
             var tokenEndpoint = OAuthConfiguration.Authority + "/" + OAuthConfiguration.TokenEndpointPath;
-            var userInfoEndpoint = OAuthConfiguration.Authority + "/" +OAuthConfiguration.UserInfoEndpointPath;
+            var userInfoEndpoint = OAuthConfiguration.Authority + "/" + OAuthConfiguration.UserInfoEndpointPath;
 
             // Use the authorization code to retrieve access and id tokens.
             var tokenResponse = Task.Run(() => HttpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest {
@@ -71,7 +83,7 @@ namespace Indice.Kentico.Oidc
 
             // If using an authorization code flow, we get the id_token from the token endpoint
             // so we populate it now into the authorizationResponse object
-            if (OAuthConfiguration.ResponseType == "Code") {
+            if (OAuthConfiguration.ResponseType == OidcConstants.ResponseTypes.Code) {
                 authorizationResponse.IdToken = tokenResponse.Json["id_token"].ToString();
             }
             // Get user claims by calling the user info endpoint using the access token.
@@ -98,22 +110,21 @@ namespace Indice.Kentico.Oidc
             var userClaims = userInfoResponse.Claims;
 
             //Commented out from original code
-            //var userName = userClaims.GetValueOrDefault(OAuthConfiguration.UserNameClaim ?? JwtClaimTypes.Name);
-            var userName = userInfoResponse.Json[OAuthConfiguration.UserNameClaim].ToString();
-            var email = userClaims.GetValueOrDefault(JwtClaimTypes.Email);
+            var userName = userClaims.GetValueOrDefault(OAuthConfiguration.UserNameClaim);
+            var email = userClaims.GetValueOrDefault(OAuthConfiguration.EmailClaim);
             if (string.IsNullOrEmpty(userName)) {
                 throw new Exception("Username cannot be found in user claims.");
             }
             // Check if the user exists in Kentico.
-            UserInfo userInfo = UserInfoProvider.GetUserInfo(userName);
+            var userInfo = UserInfoProvider.GetUserInfo(userName);
 
             // Get admin claim so we can decide if we need to assign a specific role to the user. 
             var isAdmin = userClaims.GetValueOrDefault<bool>(CustomClaimTypes.Admin);
 
             // In this case we need to create the user.
             if (userInfo == null) {
-                var firstName = userClaims.GetValueOrDefault(JwtClaimTypes.GivenName);
-                var lastName = userClaims.GetValueOrDefault(JwtClaimTypes.FamilyName);
+                var firstName = userClaims.GetValueOrDefault(OAuthConfiguration.FirstNameClaim);
+                var lastName = userClaims.GetValueOrDefault(OAuthConfiguration.LastNameClaim);
 
                 // Creates a new user object.
                 userInfo = new UserInfo{

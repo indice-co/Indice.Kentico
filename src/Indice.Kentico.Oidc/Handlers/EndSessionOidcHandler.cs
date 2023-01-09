@@ -5,10 +5,16 @@ using System.Web;
 
 namespace Indice.Kentico.Oidc
 {
+
+    /// <summary>
+    /// The signout handler. <strong>/SignOut.ashx</strong>
+    /// </summary>
     public class EndSessionOidcHandler : IHttpHandler
     {
+        /// <inheritdoc/>
         public bool IsReusable => false;
 
+        /// <inheritdoc/>
         public void ProcessRequest(HttpContext context)
         {
             if (context.User.Identity.IsAuthenticated)
@@ -18,11 +24,10 @@ namespace Indice.Kentico.Oidc
             EndSession();
         }
 
-        public static void EndSession()
-        {
+        private static void EndSession() {
             // At this point we have already sign out by using FormsAuthentication and we also have to sign out from Identity Server.
             // Create the url to Identity Server's end session endpoint.
-            var endsessionEndpoint = OAuthConfiguration.Authority.TrimEnd('/') + "/connect/endsession";
+            var endsessionEndpoint = OAuthConfiguration.Authority + "/" + OAuthConfiguration.EndSessionEndpointPath;
             var requestUrl = new RequestUrl(endsessionEndpoint);
             var endSessionUrl = requestUrl.CreateEndSessionUrl(
                 idTokenHint: HttpContext.Current.GetToken(OidcConstants.ResponseTypes.IdToken),
