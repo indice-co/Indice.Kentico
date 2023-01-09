@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Configuration;
 using IdentityModel;
-using Mono.Cecil.Cil;
 
 namespace Indice.Kentico.Oidc
 {
