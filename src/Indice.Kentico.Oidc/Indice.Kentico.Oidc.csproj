@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>$(KenticoVersion).0.8</VersionPrefix>
+    <VersionPrefix>$(KenticoVersion).0.15</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup>
     <DefineConstants Condition="$(KenticoVersion) == '9'">Kentico9</DefineConstants>
